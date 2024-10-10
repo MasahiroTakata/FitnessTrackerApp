@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 
 interface ExerciseItemProps {
   name: string;
-  duration: number;
+  duration: string;
 }
 
 const ExerciseItem: React.FC<ExerciseItemProps> = ({ name, duration }) => {
