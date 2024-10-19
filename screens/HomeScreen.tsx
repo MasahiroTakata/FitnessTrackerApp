@@ -5,7 +5,7 @@ import ExerciseItem from './ExerciseItem';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Exercise {
-  id: string;
+  id: number;
   name: string;
   duration: string;
 }
@@ -13,23 +13,39 @@ interface Exercise {
 const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネントの引数（props）として、自動的に提供される
   const [exercises, setExercises] = useState<Exercise[]>([]); // 初期化
   const navigation = useNavigation();
-  React.useEffect(() => {
+  const [count, setCounter] = useState<number>(0); // 入力したタスクにIDを振るためのcount
+
+  // console.log(route.params?.state['name']);
+  // console.log(route.params?.state['duration']);
+  // console.log(Array.isArray(exercises));
+  useEffect(() => { // データ保存時
     if (route.params?.state) {
       // setExercises(prevData => [...prevData, route.params.exerciseData]);
       // console.log(route.params?.state['exerciseName']);
-      const newExercise = {
-        id: exercises.length + 1,
-        name: route.params?.state['exerciseName'],
-        duration: route.params?.state['interval'],
-      };
-
       const loadData = async () => {
         try {
-          await AsyncStorage.setItem('exercises', JSON.stringify(newExercise));
-          // const savedExercises = await AsyncStorage.getItem('exercises');
-          // if (savedExercises !== null) {
-          //   setExercises(JSON.parse(savedExercises));
-          // }  
+          const savedExercises = await AsyncStorage.getItem('exercises');
+          const newExercise = {
+            id: route.params?.state['id'],
+            name: route.params?.state['name'],
+            duration: route.params?.state['duration'],
+          };
+          // console.log(savedExercises);
+          if (savedExercises !== null) {
+            const parsedExercises = JSON.parse(savedExercises); // JSON形式の文字列をオブジェクトに変換
+            const newExercise2 = [
+              ...parsedExercises,
+                newExercise
+            ];
+            await AsyncStorage.setItem('exercises', JSON.stringify(newExercise2));
+            setExercises(newExercise2);
+          } else{
+            const newExercise2 = [
+              newExercise
+            ];
+            await AsyncStorage.setItem('exercises', JSON.stringify(newExercise2));
+            setExercises(newExercise2);
+          }
         } catch (error) {
           console.error('Error saving data', error);
         }
@@ -44,10 +60,19 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     const loadData = async () => {
       try {
         const savedExercises = await AsyncStorage.getItem('exercises');
-        console.log(savedExercises);
-        if (savedExercises !== null) {
-          setExercises(JSON.parse(savedExercises));
-        }
+        const parsedExercises = JSON.parse(savedExercises); // JSON形式の文字列をオブジェクトに変換
+        // if (savedExercises !== null) {
+        //   // setExercises(JSON.parse(savedExercises));
+        //   const newExercise = [
+        //     ...savedExercises,
+        //     {
+        //       id: parsedExercises.id,
+        //       name: parsedExercises.name,
+        //       duration: parsedExercises.duration,
+        //     }
+        //   ];
+          setExercises(parsedExercises);
+        // }
       } catch (error) {
         console.error('Error loading data', error);
       }
@@ -63,16 +88,18 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     loadData();
   }, []);
 
+  console.log(exercises);
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Fitness Tracker</Text>
       <FlatList
-        data={exercises}
+        data={ exercises }
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           // <ExerciseItem name={item.name} duration={item.duration} />
-          <Text>{item.name} - {item.duration} 分</Text>
-
+          <View>
+            <Text>{item.name} - {item.duration} 分</Text>
+          </View>
         )}
       />
       <Button

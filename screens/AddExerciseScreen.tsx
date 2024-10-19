@@ -15,28 +15,46 @@ const AddExerciseScreen: React.FC = () => {
   // タスク一覧を管理するステート
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const navigation = useNavigation();
-  useEffect(() => { // 初回レンダリングで呼び出す
-    const loadData = async () => {
-      try {
-        const savedExercises = await AsyncStorage.getItem('exercises');
-        if (savedExercises !== null) {
-          setExercises(JSON.parse(savedExercises));
-        }
-      } catch (error) {
-        console.error('Error loading data', error);
-      }
-      // try {
-      //   // 特定のキーに保存されたデータを削除する
-      //   await AsyncStorage.removeItem('exercises');
-      //   console.log('データが削除されました');
-      // } catch (error) {
-      //   console.log('データ削除エラー:', error);
-      // }
-    };
+  const [count, setCounter] = useState<number>(1); // 入力したタスクにIDを振るためのcount
 
-    loadData();
-  }, []);
   // const [AddBtnFlg, setAddBtnFlg] = useState<boolean>(true);
+
+  // useEffect(() => { // 初回読み込みで呼び出す
+  //   // 初期化時にローカルストレージからデータを読み込む
+  //   const loadData = async () => {
+  //     try {
+  //       const savedExercises = await AsyncStorage.getItem('exercises');
+  //       console.log(savedExercises);
+  //       if (savedExercises !== null) {
+  //         setExercises(JSON.parse(savedExercises));
+  //       }
+  //     } catch (error) {
+  //       console.error('Error loading data', error);
+  //     }
+  //     console.log('初回読み込み');
+  //     // try {
+  //     //   // 特定のキーに保存されたデータを削除する
+  //     //   await AsyncStorage.removeItem('exercises');
+  //     //   console.log('データが削除されました');
+  //     // } catch (error) {
+  //     //   console.log('データ削除エラー:', error);
+  //     // }
+  //   };
+  //   loadData();
+  // }, []);
+
+  // useEffect(() => { // 初回レンダリングで呼び出す
+  //   const loadData = async () => {
+  //     try {
+  //       // 特定のキーに保存されたデータを削除する
+  //       await AsyncStorage.removeItem('exercises');
+  //       console.log('データが削除されました');
+  //     } catch (error) {
+  //       console.log('データ削除エラー:', error);
+  //     }
+  //   };
+  //   loadData();
+  // }, []);
   // const handleAddExercise = () => {
   //   if (exerciseName.trim()) {
   //     const updatedExercises = [
@@ -53,35 +71,61 @@ const AddExerciseScreen: React.FC = () => {
   //     setExercises(updatedExercises);
   //   }
   // };
-  // 新しいエクササイズを追加してローカルストレージに保存
+  // 新しいエクササイズをホーム画面に渡す
   const handleAddExercise = async() => {
     if (exerciseName.trim()) {
+      const savedExercises = await AsyncStorage.getItem('exercises');
+      // const savedCounter = await AsyncStorage.getItem('counter');
+
+      const parsedExercises = JSON.parse(savedExercises); // JSON形式の文字列をオブジェクトに変換
+      console.log(parsedExercises);
+      // if(savedCounter !== ''){
+      //   setCounter(Number(parsedExercises?.length) + 1);
+      // }
+      const aaaa = parsedExercises == null ? 1 : Number(parsedExercises?.length) + 1;
       const newExercise = {
-        id:exercises.length + 1,
+        id: aaaa,
         name: exerciseName,
         duration: duration,
       };
-      // すでに登録されたデータがexercisesに格納されている
-      const updatedExercises = [...exercises, newExercise];
-      // exercisesを更新
-      setExercises(updatedExercises);
-      // ローカルストレージに保存
-      try {
-        await AsyncStorage.setItem('exercises', JSON.stringify(updatedExercises));
-      } catch (error) {
-        console.error('Error saving data', error);
-      }
       // 入力欄をリセット
       setExerciseName('');
       setDuration('');
+      // await AsyncStorage.setItem('counter', JSON.stringify(count));
+
+      // 型を適用した上でnavigation.navigateに引数を渡す
+      navigation.navigate('Home', { state: newExercise });
+// 
+      // try {
+      //   const savedExercises = await AsyncStorage.getItem('exercises');
+      //   if (savedExercises !== null) {
+      //     setExercises(JSON.parse(savedExercises));
+      //   }
+        
+      // } catch (error) {
+      //   console.error('Error loading data', error);
+      // }
+      // すでに登録されたデータがexercisesに格納されている
+      // const updatedExercises = [...exercises, newExercise];
+      // exercisesを更新
+      // setExercises(updatedExercises);
+      // ローカルストレージに保存
+      // try {
+      //   await AsyncStorage.setItem('exercises', JSON.stringify(updatedExercises));
+      // } catch (error) {
+      //   console.error('Error saving data', error);
+      // }
     }
   };
 
   // useEffect(() => {
-  //   if(AddBtnFlg){
+  //   if(AddBtnFlg){ // 初回レンダリングはどうしても呼ばれてしまうので制御する
   //     setAddBtnFlg(false);
   //     return;
   //   }
+  //   // 入力欄をリセット
+  //   setExerciseName('');
+  //   setDuration('');
   //   // 型を適用した上でnavigation.navigateに引数を渡す
   //   navigation.navigate('Home', { state: exercises });
   // }, [exercises]);
@@ -106,7 +150,7 @@ const AddExerciseScreen: React.FC = () => {
       {/* タスクの一覧を表示 */}
       <FlatList
         data={ exercises }
-        keyExtractor={(item) => item.id.toString()}
+        // keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.taskItem}>
             <Text style={styles.taskText}>{item.name} - {item.duration} 分</Text>
