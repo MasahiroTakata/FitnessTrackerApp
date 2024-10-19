@@ -13,15 +13,9 @@ interface Exercise {
 const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネントの引数（props）として、自動的に提供される
   const [exercises, setExercises] = useState<Exercise[]>([]); // 初期化
   const navigation = useNavigation();
-  const [count, setCounter] = useState<number>(0); // 入力したタスクにIDを振るためのcount
 
-  // console.log(route.params?.state['name']);
-  // console.log(route.params?.state['duration']);
-  // console.log(Array.isArray(exercises));
   useEffect(() => { // データ保存時
     if (route.params?.state) {
-      // setExercises(prevData => [...prevData, route.params.exerciseData]);
-      // console.log(route.params?.state['exerciseName']);
       const loadData = async () => {
         try {
           const savedExercises = await AsyncStorage.getItem('exercises');
@@ -30,7 +24,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
             name: route.params?.state['name'],
             duration: route.params?.state['duration'],
           };
-          // console.log(savedExercises);
           if (savedExercises !== null) {
             const parsedExercises = JSON.parse(savedExercises); // JSON形式の文字列をオブジェクトに変換
             const newExercise2 = [
@@ -51,7 +44,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
         }
       };
       loadData();
-      console.log("データ保存");
     }
   }, [route.params?.state]);
 
@@ -61,22 +53,10 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
       try {
         const savedExercises = await AsyncStorage.getItem('exercises');
         const parsedExercises = JSON.parse(savedExercises); // JSON形式の文字列をオブジェクトに変換
-        // if (savedExercises !== null) {
-        //   // setExercises(JSON.parse(savedExercises));
-        //   const newExercise = [
-        //     ...savedExercises,
-        //     {
-        //       id: parsedExercises.id,
-        //       name: parsedExercises.name,
-        //       duration: parsedExercises.duration,
-        //     }
-        //   ];
-          setExercises(parsedExercises);
-        // }
+        setExercises(parsedExercises);
       } catch (error) {
         console.error('Error loading data', error);
       }
-      console.log('初回読み込み');
       // try {
       //   // 特定のキーに保存されたデータを削除する
       //   await AsyncStorage.removeItem('exercises');
@@ -88,18 +68,13 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     loadData();
   }, []);
 
-  console.log(exercises);
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Fitness Tracker</Text>
       <FlatList
         data={ exercises }
-        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          // <ExerciseItem name={item.name} duration={item.duration} />
-          <View>
-            <Text>{item.name} - {item.duration} 分</Text>
-          </View>
+          <ExerciseItem name={item.name} duration={item.duration} />
         )}
       />
       <Button
