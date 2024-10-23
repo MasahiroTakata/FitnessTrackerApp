@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, FlatList } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -36,6 +36,7 @@ const AddExerciseScreen: React.FC = () => {
         value={exerciseName}
         onChangeText={setExerciseName}
         placeholder="Enter excercise name"
+        placeholderTextColor="gray"
       />
       <Text style={styles.label}>Duration (minutes)</Text>
       <TextInput
@@ -44,8 +45,15 @@ const AddExerciseScreen: React.FC = () => {
         onChangeText={setDuration}
         keyboardType="numeric"
         placeholder="Enter duration name(numeric only)"
+        placeholderTextColor="gray"
       />
-      <Button title="Add Exercise" onPress={handleAddExercise} />
+      <TouchableOpacity
+        style={styles.button}
+        accessible={true}
+        onPress={handleAddExercise}
+        accessibilityRole="button">
+        <Text style={styles.buttonText}>Add Exercise</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -68,16 +76,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 8,
   },
-  taskItem: {
-    padding: 15,
-    backgroundColor: '#f9f9f9',
-    borderBottomColor: '#eee',
-    borderBottomWidth: 1,
-    marginTop: 10,
+  button: {
+    backgroundColor: '#007BFF',
+    padding: 10,
     borderRadius: 5,
   },
-  taskText: {
-    fontSize: 16,
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 

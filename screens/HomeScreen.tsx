@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, FlatList, StyleSheet } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ExerciseItem from './ExerciseItem';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -77,10 +77,14 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
           <ExerciseItem name={item.name} duration={item.duration} />
         )}
       />
-      <Button
-        title="Add New Exercise"
+      <TouchableOpacity
+        style={styles.button}
+        accessible={true}
         onPress={() => navigation.navigate('AddExercise')}
-      />
+        accessibilityRole="button">
+        <Text style={styles.buttonText}>Add Exercise</Text>
+      </TouchableOpacity>
+
     </View>
   );
 };
@@ -96,6 +100,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 16,
   },
+  button: {
+    backgroundColor: '#007BFF',
+    padding: 10,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+
 });
 
 export default HomeScreen;
