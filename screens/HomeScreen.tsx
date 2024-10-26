@@ -84,6 +84,15 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
         accessibilityRole="button">
         <Text style={styles.buttonText}>Add Exercise</Text>
       </TouchableOpacity>
+      <br></br>
+      <TouchableOpacity
+        style={styles.button}
+        accessible={true}
+        onPress={() => navigation.navigate('Graph')}
+        accessibilityRole="button">
+        <Text style={styles.buttonText}>Go To Graph
+        </Text>
+      </TouchableOpacity>
 
     </View>
   );
