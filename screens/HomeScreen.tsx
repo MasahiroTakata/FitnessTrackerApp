@@ -84,7 +84,14 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
         accessibilityRole="button">
         <Text style={styles.buttonText}>Add Exercise</Text>
       </TouchableOpacity>
-
+      <TouchableOpacity
+        style={styles.button}
+        accessible={true}
+        onPress={() => navigation.navigate('Graph')}
+        accessibilityRole="button">
+        <Text style={styles.buttonText}>Go To Graph
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -104,6 +111,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#007BFF',
     padding: 10,
     borderRadius: 5,
+    marginBottom: 10,
   },
   buttonText: {
     color: 'white',
