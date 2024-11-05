@@ -8,12 +8,11 @@ const { width } = Dimensions.get('window');
 // 折れ線グラフのコンポーネント
 const LineChart: React.FC<{ data: number[] }> = ({ data }) => {
   const height = 200; // グラフの高さ
-  const padding = 20; // グラフの余白
+  const padding = 20; // グラフの余白（画面の上下左右の端からの余白を設定している）
   const maxValue = Math.max(...data); // データの最大値を取得
-
   // 折れ線の座標を計算
   const points = data
-    .map((value, index) => {
+    .map((value, index) => { // valueがdataに格納した数字、indexは配列の要素番号
       const x = (index / (data.length - 1)) * (width - 2 * padding) + padding;
       const y = height - (value / maxValue) * (height - 2 * padding) - padding;
       return `${x},${y}`;
@@ -23,20 +22,18 @@ const LineChart: React.FC<{ data: number[] }> = ({ data }) => {
   return (
     <View style={styles.container}>
       <Svg width={width} height={height}>
-        {/* グリッドラインを描画 */}
+        {/* グリッドライン（x軸、y軸のこと）を描画 */}
         <G stroke="#ccc">
           <Line x1={padding} y1={padding} x2={padding} y2={height - padding} />
           <Line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} />
         </G>
-
         {/* 折れ線を描画 */}
         <Polyline
           points={points}
           fill="none"
           stroke="#007AFF"
-          strokeWidth={2}
+          strokeWidth={3}
         />
-
         {/* データラベルを描画 */}
         {data.map((value, index) => {
           const x = (index / (data.length - 1)) * (width - 2 * padding) + padding;
@@ -45,7 +42,7 @@ const LineChart: React.FC<{ data: number[] }> = ({ data }) => {
             <SvgText
               key={index}
               x={x}
-              y={y - 5}
+              y={y - 7}
               fontSize="10"
               fill="#333"
               textAnchor="middle"
