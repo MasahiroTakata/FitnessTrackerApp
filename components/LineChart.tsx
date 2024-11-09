@@ -19,7 +19,6 @@ const LineChart = () => {
           // オブジェクト形式に変換する(配列が取得できる) 
           const parsedData = JSON.parse(savedData);
           const durations = parsedData.map((item: { duration: string }) => parseInt(item.duration, 10));
-          console.log(durations);
           setData(durations);
         }
       } catch (error) {
