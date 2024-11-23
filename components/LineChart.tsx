@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // 画面の幅を取得する
 const { width } = Dimensions.get('window');
 // 折れ線グラフのコンポーネント
-const LineChart = () => {
+const LineChart : React.FC = () => {
   const height = 200; // グラフの高さ
   const padding = 20; // グラフの余白（画面の上下左右の端からの余白を設定している）
   const [data, setData] = useState<number[]>([]);
@@ -31,13 +31,12 @@ const LineChart = () => {
 
   const maxValue = Math.max(...data); // データの最大値を取得
   // 折れ線の座標を計算
-  const points = data
-    .map((value, index) => { // valueがdataに格納した数字、indexは配列の要素番号
+  const points = data.map((value, index) => { // valueがdataに格納した数字、indexは配列の要素番号
       const x = (index / (data.length - 1)) * (width - 2 * padding) + padding;
       const y = height - (value / maxValue) * (height - 2 * padding) - padding;
       return `${x},${y}`;
     })
-    .join(' ');
+  .join(' ');
 
   return (
     <View style={styles.container}>
