@@ -1,23 +1,42 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Polyline, Line, G, Text as SvgText } from 'react-native-svg';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // 画面の幅を取得する
 const { width } = Dimensions.get('window');
-
 // 折れ線グラフのコンポーネント
-const LineChart: React.FC<{ data: number[] }> = ({ data }) => {
+const LineChart : React.FC = () => {
   const height = 200; // グラフの高さ
   const padding = 20; // グラフの余白（画面の上下左右の端からの余白を設定している）
+  const [data, setData] = useState<number[]>([]);
+  // 初期表示時に呼ばれる
+  useEffect(() => {
+    const fetchData = async () => { // 非同期処理で、不具合が起きにくくしている
+      try {
+        const savedData = await AsyncStorage.getItem('exercises');
+        if (savedData) {
+          // オブジェクト形式に変換する(配列が取得できる) 
+          const parsedData = JSON.parse(savedData);
+          const durations = parsedData.map((item: { duration: string }) => parseInt(item.duration, 10));
+          setData(durations);
+        }
+      } catch (error) {
+        console.error('Failed to load data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const maxValue = Math.max(...data); // データの最大値を取得
   // 折れ線の座標を計算
-  const points = data
-    .map((value, index) => { // valueがdataに格納した数字、indexは配列の要素番号
+  const points = data.map((value, index) => { // valueがdataに格納した数字、indexは配列の要素番号
       const x = (index / (data.length - 1)) * (width - 2 * padding) + padding;
       const y = height - (value / maxValue) * (height - 2 * padding) - padding;
       return `${x},${y}`;
     })
-    .join(' ');
+  .join(' ');
 
   return (
     <View style={styles.container}>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CommonStyles from '../styles/commonStyles';
 
 const AddExerciseScreen: React.FC = () => {
   const [exerciseName, setExerciseName] = useState('');
@@ -29,7 +30,7 @@ const AddExerciseScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={CommonStyles.container}>
       <Text style={styles.label}>Exercise Name</Text>
       <TextInput
         style={styles.input}
@@ -52,18 +53,13 @@ const AddExerciseScreen: React.FC = () => {
         accessible={true}
         onPress={handleAddExercise}
         accessibilityRole="button">
-        <Text style={styles.buttonText}>Add Exercise</Text>
+        <Text style={CommonStyles.buttonText}>Add Exercise</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 16,
-  },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -80,11 +76,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#007BFF',
     padding: 10,
     borderRadius: 5,
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
   },
 });
 
