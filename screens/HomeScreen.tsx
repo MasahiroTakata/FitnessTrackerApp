@@ -8,7 +8,9 @@ import styles from '../styles/commonStyles';
 interface Exercise {
   id: number;
   name: string;
-  duration: string;
+  category: number;
+  duration: number;
+  color: string;
 }
 
 const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネントの引数（props）として、自動的に提供される
@@ -23,7 +25,9 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
           const newExercise = {
             id: route.params?.state['id'],
             name: route.params?.state['name'],
+            category: route.params?.state['category'],
             duration: route.params?.state['duration'],
+            color: route.params?.state['color'],
           };
           if (savedExercises !== null) {
             const parsedExercises = JSON.parse(savedExercises); // JSON形式の文字列をオブジェクトに変換

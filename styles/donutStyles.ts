@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
     width: 100, // 中央の円のサイズ
     height: 100,
     borderRadius: 50, // 完全な円形にする
-    backgroundColor: "white", // 背景色と同じ色
+    backgroundColor: "rgb(242, 242, 242)", // 背景色と同じ色
     justifyContent: "center",
     alignItems: "center",
   },
