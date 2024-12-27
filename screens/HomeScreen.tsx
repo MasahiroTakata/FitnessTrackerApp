@@ -4,14 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import ExerciseItem from './ExerciseItem';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../styles/commonStyles';
-
-interface Exercise {
-  id: number;
-  name: string;
-  category: number;
-  duration: number;
-  color: string;
-}
+import { Exercise } from '@/types/exercise';
 
 const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネントの引数（props）として、自動的に提供される
   const [exercises, setExercises] = useState<Exercise[]>([]); // 初期化
@@ -52,7 +45,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     }
   }, [route.params?.state]);
 
-  useEffect(() => { // 初回読み込みで呼び出す
+  useEffect(() => { // 初回読み込みで呼び出す（第二引数を空にすることで、初期表示時にこのuseEffectが呼び出される）
     // 初期化時にローカルストレージからデータを読み込む
     const loadData = async () => {
       try {

@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, FlatList } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 import styles from '../styles/donutStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ExerciseItem from './ExerciseItem';
+import { categories } from '../types/categories';
 
-interface Exercise {
-  id: number;
-  name: string;
-  category: number;
-  duration: number;
-  color: string;
-}
+// categoryから対応するlabelを取得する関数（propsがFlatListにて受け取ったカテゴリーID）
+const getCategoryLabel = (category: number): string => {
+  // catは、categoriesの１データのこと。findでcategoriesを1行ずつ検索している
+  const foundCategory = categories.find((cat) => parseInt(cat.value, 10) === category);
+  return foundCategory ? foundCategory.label : "不明"; // 該当するカテゴリーがなければ「不明」
+};
 
 const DonutChart : React.FC = () =>{
   const [exercises, setExercises] = useState<Exercise[]>([]); // 初期化
@@ -29,11 +30,6 @@ const DonutChart : React.FC = () =>{
     fetchData();
   }, []);
 
-  // const data = [ // 指定する要素は決まっているっぽいが、要素の追加は可能
-  //   { name: "A", population: 85, color: "tomato", legendFontColor: "#7F7F7F", legendFontSize: 15 },
-  //   { name: "B", population: 65, color: "orange", legendFontColor: "#7F7F7F", legendFontSize: 15 },
-  //   { name: "C", population: 55, color: "gold", legendFontColor: "#7F7F7F", legendFontSize: 15 },
-  // ];
   return (
     <View style={styles.container}>
       <View style={styles.chartWrapper}>
@@ -51,12 +47,19 @@ const DonutChart : React.FC = () =>{
           backgroundColor={"transparent"} // transparentを指定することで、背景を透明に設定
           paddingLeft={"100"}
           center={[75, 0]} // グラフの中心を整える（左上を始点としている）
-          absolute // セグメント値（内訳みたいな説明が書かれたやつ）を中央に表示する
+          // absolute // セグメント値（内訳みたいな説明が書かれたやつ）を中央に表示する
+          hasLegend={false}
         />
         {/* ドーナツ中央部分 */}
         <View style={styles.centerText}>
         </View>
       </View>
+      <FlatList
+        data={ exercises }
+        renderItem={({ item }) => (
+          <ExerciseItem name={ getCategoryLabel(item.category) } duration={item.duration} />
+        )}
+      />
     </View>
   );
 };

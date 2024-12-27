@@ -4,21 +4,13 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CommonStyles from '../styles/commonStyles';
 import RNPickerSelect from 'react-native-picker-select';
+import { categories } from '@/types/categories';
 
 const AddExerciseScreen: React.FC = () => {
   const [exerciseName, setExerciseName] = useState('');
   const [duration, setDuration] = useState('');
   const navigation = useNavigation();
   const [selectedCategory, setSelectedCategory] = useState('');
-  const categories = [
-    { label: '首', value: '1', color: "#000", graphColor: "green" },
-    { label: '腕', value: '2', color: "#000", graphColor: "red" },
-    { label: '背中', value: '3', color: "#000", graphColor: "gold" },
-    { label: '胸', value: '4', color: "#000", graphColor: "tomato" },
-    { label: '腹', value: '5', color: "#000", graphColor: "orange" },
-    { label: '足', value: '6', color: "#000", graphColor: "blue" },
-    { label: '有酸素運動系（ランニングなど）', value: '7', color: "#000", graphColor: "yellow"},
-  ];
   // 新しいエクササイズをホーム画面に渡す
   const handleAddExercise = async() => {
     if (exerciseName.trim()) {

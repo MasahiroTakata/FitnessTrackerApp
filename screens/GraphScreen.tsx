@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
-import LineChart from '../components/LineChart';
+// import LineChart from '../components/LineChart';
 import DonutChart from './DonutChart';
 import { useNavigation } from '@react-navigation/native';
 import styles from '../styles/commonStyles';
