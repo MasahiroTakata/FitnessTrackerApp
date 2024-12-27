@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
-import LineChart from '../components/LineChart';
+// import LineChart from '../components/LineChart';
 import DonutChart from './DonutChart';
 import { useNavigation } from '@react-navigation/native';
 import styles from '../styles/commonStyles';
@@ -10,8 +10,8 @@ const GraphScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>エクササイズ進捗</Text>
-      <LineChart/>
+      <Text style={styles.title}>エクササイズ割合</Text>
+      {/* <LineChart/> */}
       <DonutChart/>
       <TouchableOpacity
         style={styles.button}

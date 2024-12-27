@@ -4,17 +4,13 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CommonStyles from '../styles/commonStyles';
 import RNPickerSelect from 'react-native-picker-select';
+import { categories } from '@/types/categories';
 
 const AddExerciseScreen: React.FC = () => {
   const [exerciseName, setExerciseName] = useState('');
   const [duration, setDuration] = useState('');
   const navigation = useNavigation();
-  const [selectedValue, setSelectedValue] = useState('');
-  const categories = [
-    { label: 'Option 1', value: 'option1', color: "#000" },
-    { label: 'Option 2', value: 'option2', color: "#000" },
-    { label: 'Option 3', value: 'option3', color: "#000" },
-  ];
+  const [selectedCategory, setSelectedCategory] = useState('');
   // 新しいエクササイズをホーム画面に渡す
   const handleAddExercise = async() => {
     if (exerciseName.trim()) {
@@ -25,11 +21,14 @@ const AddExerciseScreen: React.FC = () => {
       const newExercise = {
         id: counter,
         name: exerciseName,
-        duration: duration,
+        category: parseInt(selectedCategory, 10),
+        duration: parseInt(duration, 10),
+        color: categories.filter(getGraphColor => getGraphColor['value'] === selectedCategory)[0]['graphColor'],
       };
       // 入力欄をリセット
       setExerciseName('');
       setDuration('');
+      setSelectedCategory('');
       // 型を適用した上でnavigation.navigateに引数を渡す
       navigation.navigate('Home', { state: newExercise });
     }
@@ -46,16 +45,15 @@ const AddExerciseScreen: React.FC = () => {
         placeholderTextColor="gray"
       />
 
-      <Text style={styles.label}>Select an Option:</Text>
+      <Text style={styles.label}>Select Exercise Category</Text>
       <RNPickerSelect
         onValueChange={(value) => {
-          setSelectedValue(value);
-          console.log("Selected Value:", value);
+          setSelectedCategory(value);
         }}
         items={categories}
         placeholder={{ label: 'Select an option...', value: "", color: "#000" }}
         style={pickerSelectStyles}
-        value={selectedValue} // 現在選択されている値
+        value={selectedCategory} // 現在選択されている値
         Icon={() => (<Text style={{ position: 'absolute', right: 15, top: 10, fontSize: 18, color: '#789' }}>▼</Text>)}
       />
 
@@ -97,7 +95,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
   },
-  selectedValue: {
+  selectedCategory: {
     fontSize: 16,
     marginTop: 20,
   },
