@@ -5,7 +5,6 @@ import styles from '../styles/donutStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ExerciseItem from './ExerciseItem';
 import { categories } from '../types/categories';
-
 // categoryから対応するlabelを取得する関数（propsがFlatListにて受け取ったカテゴリーID）
 const getCategoryLabel = (category: number): string => {
   // catは、categoriesの１データのこと。findでcategoriesを1行ずつ検索している
@@ -22,7 +21,26 @@ const DonutChart : React.FC = () =>{
         const savedExercises = await AsyncStorage.getItem('exercises');
         // JSON形式の文字列をオブジェクトに変換。これによりlengthでデータ数を取得できる
         const parsedExercises = JSON.parse(savedExercises);
-        setExercises(parsedExercises);
+        // カテゴリーごとに合計時間を格納した配列をsetExercisesの引数とする
+        // parsedExercisesからカテゴリーIDを重複なしで取得する
+        const categoryList = parsedExercises.map(item => item.category);
+        const uniqueCategories = new Set(categoryList);
+        // 重複のないカテゴリーIDを元に新しい配列を生成
+        const summarizedExercises = Array.from(uniqueCategories).map(categoryId => {
+          // 同じカテゴリーIDのデータを取得
+          const exercisesInCategory = parsedExercises.filter(item => item.category === categoryId);
+          // mapで取得したcategoryIdで、colorを取得する
+          const color = categories.filter(getGraphColor => getGraphColor['value'] === String(categoryId))[0]['graphColor'];
+          // durationの合計値を計算
+          const totalDuration = exercisesInCategory.reduce((sum, item) => sum + item.duration, 0);
+          // 新しいオブジェクトとして返す
+          return {
+            category: categoryId,
+            duration: totalDuration,
+            color: color,
+          };
+        });
+        setExercises(summarizedExercises);
       } catch (error) {
         console.error('Failed to load data:', error);
       }
@@ -57,7 +75,7 @@ const DonutChart : React.FC = () =>{
       <FlatList
         data={ exercises }
         renderItem={({ item }) => (
-          <ExerciseItem name={ getCategoryLabel(item.category) } duration={item.duration} />
+          <ExerciseItem name={ getCategoryLabel(item.category) } duration={item.duration} color={item.color} />
         )}
       />
     </View>

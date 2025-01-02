@@ -72,7 +72,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
       <FlatList
         data={ exercises }
         renderItem={({ item }) => (
-          <ExerciseItem name={item.name} duration={item.duration} />
+          <ExerciseItem name={item.name} duration={item.duration} color='' />
         )}
       />
       <TouchableOpacity
