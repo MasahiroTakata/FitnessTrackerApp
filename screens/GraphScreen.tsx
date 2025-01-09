@@ -11,7 +11,6 @@ const GraphScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>エクササイズ割合</Text>
-      {/* <LineChart/> */}
       <DonutChart/>
       <TouchableOpacity
         style={styles.button}

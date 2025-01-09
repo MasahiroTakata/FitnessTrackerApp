@@ -12,7 +12,7 @@ const LineChart : React.FC = () => {
   const [data, setData] = useState<number[]>([]);
   // 初期表示時に呼ばれる
   useEffect(() => {
-    const fetchData = async () => { // 非同期処理で、不具合が起きにくくしている
+    const fetchData = async () => { // 非同期処理で、他のコードと並行して処理することで、ユーザーの快適な操作性を実現している
       try {
         const savedData = await AsyncStorage.getItem('exercises');
         if (savedData) {
