@@ -23,7 +23,7 @@ const AddExerciseScreen: React.FC = () => {
         name: exerciseName,
         category: parseInt(selectedCategory, 10),
         duration: parseInt(duration, 10),
-        color: categories.filter(getGraphColor => getGraphColor['value'] === selectedCategory)[0]['graphColor'],
+        color: categories.find((cat) => parseInt(cat.value, 10) === parseInt(selectedCategory, 10))['graphColor'],
       };
       // 入力欄をリセット
       setExerciseName('');

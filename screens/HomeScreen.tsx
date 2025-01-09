@@ -22,6 +22,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
             duration: route.params?.state['duration'],
             color: route.params?.state['color'],
           };
+          // 他のエクササイズデータが保存されてた時
           if (savedExercises !== null) {
             const parsedExercises = JSON.parse(savedExercises); // JSON形式の文字列をオブジェクトに変換
             const newExercise2 = [
@@ -72,8 +73,9 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
       <FlatList
         data={ exercises }
         renderItem={({ item }) => (
-          <ExerciseItem name={item.name} duration={item.duration} color='' />
+          <ExerciseItem name={item.name} duration={item.duration} color='white' />
         )}
+        keyExtractor={(item) => `${item.name} - ${item.duration}`}
       />
       <TouchableOpacity
         style={styles.button}

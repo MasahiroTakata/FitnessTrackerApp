@@ -3,16 +3,16 @@ import { View, Text, StyleSheet, Dimensions } from 'react-native';
 
 interface ExerciseItemProps {
   name: string;
-  duration: string;
+  duration: number;
   color: string;
 }
 // デバイスの幅を取得（デバイスを横にした時の幅は取ってくれないっぽい、DimensionsというAPIは。）
 const screenWidth = Dimensions.get('window').width;
 
-const ExerciseItem: React.FC<ExerciseItemProps> = ({ name, duration, color }) => {
+const ExerciseItem: React.FC<ExerciseItemProps> = ({ name = '', duration = '', color = 'white' }) => {
   return (
-    <View style={color !== '' ? [styles.item, { flexDirection: 'row', alignItems: 'center' }] : [styles.item]}>
-      <View style={color !== '' ? [styles.circle, { backgroundColor: color }] : [styles.circle]}></View>
+    <View style={color !== 'white' ? [styles.item, { flexDirection: 'row', alignItems: 'center' }] : [styles.item]}>
+      <View style={color !== 'white' ? [styles.circle, { backgroundColor: color }] : [styles.circle]}></View>
       <View style={styles.exerciseList}>
         <Text style={styles.name}>{name}</Text>
         <Text style={styles.duration}>{duration} mins</Text>

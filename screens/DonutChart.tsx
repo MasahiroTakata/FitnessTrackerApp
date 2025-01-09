@@ -12,6 +12,32 @@ const getCategoryLabel = (category: number): string => {
   return foundCategory ? foundCategory.label : "不明"; // 該当するカテゴリーがなければ「不明」
 };
 
+const getExercisesData = (savedExercises: string): Exercise[] => {
+  // JSON形式の文字列をオブジェクトに変換。これによりlengthでデータ数を取得できる
+  const parsedExercises = JSON.parse(savedExercises);
+  // カテゴリーごとに合計時間を格納した配列をsetExercisesの引数とする
+  // parsedExercisesからカテゴリーIDを重複なしで取得する
+  const categoryList = parsedExercises.map(item => item.category);
+  const uniqueCategories = new Set(categoryList);
+  // 重複のないカテゴリーIDを元に新しい配列を生成
+  const summarizedExercises = Array.from(uniqueCategories).map(categoryId => {
+    // 同じカテゴリーIDのデータを取得
+    const exercisesInCategory = parsedExercises.filter(item => item.category === categoryId);
+    // mapで取得したcategoryIdで、colorを取得する
+    const color = categories.find((cat) => parseInt(cat.value, 10) === categoryId)['graphColor'];
+    // durationの合計値を計算
+    const totalDuration = exercisesInCategory.reduce((sum, item) => sum + item.duration, 0);
+    // 新しいオブジェクトとして返す
+    return {
+      category: categoryId,
+      duration: totalDuration,
+      color: color,
+    };
+  });
+
+  return summarizedExercises;
+};
+
 const DonutChart : React.FC = () =>{
   const [exercises, setExercises] = useState<Exercise[]>([]); // 初期化
   // 初期表示時に呼ばれる
@@ -19,27 +45,7 @@ const DonutChart : React.FC = () =>{
     const fetchData = async () => {
       try {
         const savedExercises = await AsyncStorage.getItem('exercises');
-        // JSON形式の文字列をオブジェクトに変換。これによりlengthでデータ数を取得できる
-        const parsedExercises = JSON.parse(savedExercises);
-        // カテゴリーごとに合計時間を格納した配列をsetExercisesの引数とする
-        // parsedExercisesからカテゴリーIDを重複なしで取得する
-        const categoryList = parsedExercises.map(item => item.category);
-        const uniqueCategories = new Set(categoryList);
-        // 重複のないカテゴリーIDを元に新しい配列を生成
-        const summarizedExercises = Array.from(uniqueCategories).map(categoryId => {
-          // 同じカテゴリーIDのデータを取得
-          const exercisesInCategory = parsedExercises.filter(item => item.category === categoryId);
-          // mapで取得したcategoryIdで、colorを取得する
-          const color = categories.filter(getGraphColor => getGraphColor['value'] === String(categoryId))[0]['graphColor'];
-          // durationの合計値を計算
-          const totalDuration = exercisesInCategory.reduce((sum, item) => sum + item.duration, 0);
-          // 新しいオブジェクトとして返す
-          return {
-            category: categoryId,
-            duration: totalDuration,
-            color: color,
-          };
-        });
+        const summarizedExercises = getExercisesData(savedExercises);
         setExercises(summarizedExercises);
       } catch (error) {
         console.error('Failed to load data:', error);
@@ -77,6 +83,7 @@ const DonutChart : React.FC = () =>{
         renderItem={({ item }) => (
           <ExerciseItem name={ getCategoryLabel(item.category) } duration={item.duration} color={item.color} />
         )}
+        keyExtractor={(item) => `${item.name} - ${item.duration}`}
       />
     </View>
   );
