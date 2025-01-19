@@ -5,6 +5,7 @@ import styles from '../styles/donutStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ExerciseItem from './ExerciseItem';
 import { categories } from '../types/categories';
+import { Exercise } from '@/types/exercise';
 // categoryから対応するlabelを取得する関数（propsがFlatListにて受け取ったカテゴリーID）
 const getCategoryLabel = (category: number): string => {
   // catは、categoriesの１データのこと。findでcategoriesを1行ずつ検索している
