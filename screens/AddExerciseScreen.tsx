@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CommonStyles from '../styles/commonStyles';
 import RNPickerSelect from 'react-native-picker-select';
 import { categories } from '@/types/categories';
+import { Calendar } from "react-native-calendars";
 
-const AddExerciseScreen: React.FC = () => {
+const AddExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型を<any>として宣言している
   const [exerciseName, setExerciseName] = useState('');
   const [duration, setDuration] = useState('');
   const navigation = useNavigation();
   const [selectedCategory, setSelectedCategory] = useState('');
+  // 日付入力用
+  const [selectedDate, setSelectedDate] = useState(route.params?.state); // 今日の日付をデフォルトに設定
+  const [isCalendarVisible, setCalendarVisible] = useState(false);
+console.log(selectedDate);
   // 新しいエクササイズをホーム画面に渡す
   const handleAddExercise = async() => {
     if (exerciseName.trim()) {
@@ -24,6 +29,7 @@ const AddExerciseScreen: React.FC = () => {
         category: parseInt(selectedCategory, 10),
         duration: parseInt(duration, 10),
         color: categories.find((cat) => parseInt(cat.value, 10) === parseInt(selectedCategory, 10))['graphColor'],
+        exercisedDate: selectedDate,
       };
       // 入力欄をリセット
       setExerciseName('');
@@ -32,6 +38,18 @@ const AddExerciseScreen: React.FC = () => {
       // 型を適用した上でnavigation.navigateに引数を渡す
       navigation.navigate('Home', { state: newExercise });
     }
+  };
+  // 日付のフォーマットを調整する関数（例: yyyy-mm-dd）
+  const formatDate = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // 月を2桁に
+    const day = String(date.getDate()).padStart(2, "0"); // 日を2桁に
+    return `${year}/${month}/${day}`;
+  };
+  // 日付を選択したときの処理
+  const onDateSelect = (date: Date) => {
+    setSelectedDate(date);
+    setCalendarVisible(false); // カレンダーを閉じる
   };
 
   return (
@@ -66,6 +84,35 @@ const AddExerciseScreen: React.FC = () => {
         placeholder="Enter duration name(numeric only)"
         placeholderTextColor="gray"
       />
+      <Text style={styles.label}>Exercised Day(変更可能)
+      </Text>
+        {/* 日付表示用のテキスト */}
+      <TouchableOpacity onPress={() => setCalendarVisible(true)}>
+        <Text style={styles.dateText}>
+          { formatDate(new Date(selectedDate)) }
+        </Text>
+      </TouchableOpacity>
+      {/* モーダルにカレンダーを表示 */}
+      <Modal visible={isCalendarVisible} transparent={true} animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.calendarContainer}>
+            <Calendar
+              // 現在の日付を初期選択状態に設定
+              current={selectedDate || undefined}
+              onDayPress={(day) => onDateSelect(day.dateString)} // 日付選択時のコールバック
+              markedDates={{
+                [selectedDate]: { selected: true, selectedColor: "blue" }, // 選択中の日付を強調表示
+              }}
+            />
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setCalendarVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>閉じる</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       <TouchableOpacity
         style={styles.button}
         accessible={true}
@@ -98,6 +145,36 @@ const styles = StyleSheet.create({
   selectedCategory: {
     fontSize: 16,
     marginTop: 20,
+  },
+  dateText: {
+    fontSize: 18,
+    color: "black",
+    padding: 10,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 5,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  calendarContainer: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    width: "90%",
+  },
+  closeButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "blue",
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  closeButtonText: {
+    color: "white",
+    fontSize: 16,
   },
 });
 

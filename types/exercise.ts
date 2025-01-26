@@ -4,4 +4,5 @@ export interface Exercise {
   category: number;
   duration: number;
   color: string;
+  exercisedDate: string;
 }
