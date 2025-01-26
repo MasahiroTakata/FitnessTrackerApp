@@ -7,24 +7,15 @@ import RNPickerSelect from 'react-native-picker-select';
 import { categories } from '@/types/categories';
 import { Calendar } from "react-native-calendars";
 
-const AddExerciseScreen: React.FC = () => {
+const AddExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型を<any>として宣言している
   const [exerciseName, setExerciseName] = useState('');
   const [duration, setDuration] = useState('');
   const navigation = useNavigation();
   const [selectedCategory, setSelectedCategory] = useState('');
-  const today = new Date();
-  const formatted = today
-  .toLocaleDateString("ja-JP", {
-    year: "numeric",
-    month: "2-digit", // デフォルトは１桁（1月だと1と表示される）、2-digitとすることで２桁としてくれる（１月なら01月）
-    day: "2-digit",
-  })
-  .split("/") // スラッシュ区切りで配列で格納する
-  .join("-"); // 配列に格納された値をハイフンで結合して文字列にする
   // 日付入力用
-  const [selectedDate, setSelectedDate] = useState(formatted); // 今日の日付をデフォルトに設定
+  const [selectedDate, setSelectedDate] = useState(route.params?.state); // 今日の日付をデフォルトに設定
   const [isCalendarVisible, setCalendarVisible] = useState(false);
-
+console.log(selectedDate);
   // 新しいエクササイズをホーム画面に渡す
   const handleAddExercise = async() => {
     if (exerciseName.trim()) {
@@ -38,7 +29,7 @@ const AddExerciseScreen: React.FC = () => {
         category: parseInt(selectedCategory, 10),
         duration: parseInt(duration, 10),
         color: categories.find((cat) => parseInt(cat.value, 10) === parseInt(selectedCategory, 10))['graphColor'],
-        exercisedDate: '2025-01-12',
+        exercisedDate: selectedDate,
       };
       // 入力欄をリセット
       setExerciseName('');
@@ -53,7 +44,7 @@ const AddExerciseScreen: React.FC = () => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0"); // 月を2桁に
     const day = String(date.getDate()).padStart(2, "0"); // 日を2桁に
-    return `${year}-${month}-${day}`;
+    return `${year}/${month}/${day}`;
   };
   // 日付を選択したときの処理
   const onDateSelect = (date: Date) => {
@@ -93,11 +84,12 @@ const AddExerciseScreen: React.FC = () => {
         placeholder="Enter duration name(numeric only)"
         placeholderTextColor="gray"
       />
-      <Text style={styles.label}>Exercised Day</Text>
+      <Text style={styles.label}>Exercised Day(変更可能)
+      </Text>
         {/* 日付表示用のテキスト */}
       <TouchableOpacity onPress={() => setCalendarVisible(true)}>
         <Text style={styles.dateText}>
-          {selectedDate}
+          { formatDate(new Date(selectedDate)) }
         </Text>
       </TouchableOpacity>
       {/* モーダルにカレンダーを表示 */}

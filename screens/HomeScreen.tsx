@@ -65,8 +65,11 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
               ...parsedExercises,
                 newExercise
             ];
+            // エクササイズ保存
             await AsyncStorage.setItem('exercises', JSON.stringify(newExercise2));
-            setExercises(newExercise2);
+            // filterメソッドを使用してexercisedDateが、選択した日付のデータを取得
+            const filteredExercises = newExercise2.filter(item => item.exercisedDate === selectedDate);
+            setExercises(filteredExercises);
           } else{
             const newExercise2 = [
               newExercise
@@ -106,12 +109,12 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
         renderItem={({ item }) => (
           <ExerciseItem name={item.name} duration={item.duration} color='white' />
         )}
-        keyExtractor={(item) => `${item.name} - ${item.duration}`}
+        keyExtractor={(item) => `${item.id}`}
       />
       <TouchableOpacity
         style={styles.button}
         accessible={true}
-        onPress={() => navigation.navigate('AddExercise')}
+        onPress={() => navigation.navigate('AddExercise', { state: selectedDate })}
         accessibilityRole="button">
         <Text style={styles.buttonText}>Add Exercise</Text>
       </TouchableOpacity>

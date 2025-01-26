@@ -84,7 +84,7 @@ const DonutChart : React.FC = () =>{
         renderItem={({ item }) => (
           <ExerciseItem name={ getCategoryLabel(item.category) } duration={item.duration} color={item.color} />
         )}
-        keyExtractor={(item) => `${item.name} - ${item.duration}`}
+        keyExtractor={(item) => `${item.category}`}
       />
     </View>
   );
