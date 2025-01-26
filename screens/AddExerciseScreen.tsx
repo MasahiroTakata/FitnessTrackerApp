@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CommonStyles from '../styles/commonStyles';
@@ -53,7 +53,7 @@ console.log(selectedDate);
   };
 
   return (
-    <View style={CommonStyles.container}>
+    <ScrollView contentContainerStyle={CommonStyles.container} scrollEnabled={true}>
       <Text style={styles.label}>Exercise Name</Text>
       <TextInput
         style={styles.input}
@@ -120,7 +120,7 @@ console.log(selectedDate);
         accessibilityRole="button">
         <Text style={CommonStyles.buttonText}>Add Exercise</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 
