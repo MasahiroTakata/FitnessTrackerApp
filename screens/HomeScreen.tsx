@@ -61,16 +61,38 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
           // 他のエクササイズデータが保存されてた時
           if (savedExercises !== null) {
             const parsedExercises = JSON.parse(savedExercises); // JSON形式の文字列をオブジェクトに変換
-            const newExercise2 = [
-              ...parsedExercises,
-                newExercise
-            ];
-            // エクササイズ保存
-            await AsyncStorage.setItem('exercises', JSON.stringify(newExercise2));
-            // filterメソッドを使用してexercisedDateが、選択した日付のデータを取得
-            const filteredExercises = newExercise2.filter(item => item.exercisedDate === selectedDate);
-            setExercises(filteredExercises);
-          } else{
+            // 編集か？新規か？の判断
+            const idFilteredExercises = parsedExercises.filter(item => item.id === route.params?.state['id'])[0];
+
+            if(idFilteredExercises === undefined){
+              const newExercise2 = [
+                ...parsedExercises,
+                  newExercise
+              ];
+              // エクササイズ保存
+              await AsyncStorage.setItem('exercises', JSON.stringify(newExercise2));
+              // filterメソッドを使用してexercisedDateが、選択した日付のデータを取得
+              const filteredExercises = newExercise2.filter(item => item.exercisedDate === selectedDate);
+              setExercises(filteredExercises);
+            } else{ // 編集時
+              const updatedExercises = parsedExercises.map(item =>
+                item.id === route.params?.state['id']
+                  ? { ...item, 
+                    name: route.params?.state['name'],
+                    category: route.params?.state['category'],
+                    duration: route.params?.state['duration'],
+                    exercisedDate: route.params?.state['exercisedDate'],
+                  } // ここで更新するデータをセット
+                  : item
+              );
+              // エクササイズ保存
+              await AsyncStorage.setItem('exercises', JSON.stringify(updatedExercises));
+              // filterメソッドを使用してexercisedDateが、選択した日付のデータを取得
+              const filteredExercises = updatedExercises.filter(item => item.exercisedDate === route.params?.state['exercisedDate']);
+              setExercises(filteredExercises);
+              setSelectedDate(route.params?.state['exercisedDate']);
+            }
+          } else{ // 初めてエクササイズを保存する時
             const newExercise2 = [
               newExercise
             ];
@@ -107,7 +129,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
       <FlatList
         data={ exercises }
         renderItem={({ item }) => (
-          <ExerciseItem name={item.name} duration={item.duration} color='white' />
+          <ExerciseItem id = {item.id} name={item.name} duration={item.duration} color='white' />
         )}
         keyExtractor={(item) => `${item.id}`}
       />

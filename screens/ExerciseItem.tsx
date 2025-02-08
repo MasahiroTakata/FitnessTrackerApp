@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 interface ExerciseItemProps {
+  id: number;
   name: string;
   duration: number;
   color: string;
@@ -9,16 +11,33 @@ interface ExerciseItemProps {
 // デバイスの幅を取得（デバイスを横にした時の幅は取ってくれないっぽい、DimensionsというAPIは。）
 const screenWidth = Dimensions.get('window').width;
 
-const ExerciseItem: React.FC<ExerciseItemProps> = ({ name = '', duration = '', color = 'white' }) => {
-  return (
-    <View style={color !== 'white' ? [styles.item, { flexDirection: 'row', alignItems: 'center' }] : [styles.item]}>
-      <View style={color !== 'white' ? [styles.circle, { backgroundColor: color }] : [styles.circle]}></View>
-      <View style={styles.exerciseList}>
-        <Text style={styles.name}>{name}</Text>
-        <Text style={styles.duration}>{duration} mins</Text>
+const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', duration = '', color = 'white' }) => {
+  const navigation = useNavigation();
+  
+  if(color !== 'white'){
+    return ( // 円グラフ画面
+      <View style= {[styles.item, {flexDirection: 'row', alignItems: 'center'}]}>
+        <View style={[styles.circle, { backgroundColor: color }]}></View>
+        <View style={styles.exerciseList}>
+          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.duration}>{duration} mins</Text>
+        </View>
       </View>
-    </View>
-  );
+    );
+  } else{ // ホーム画面（編集画面を表示する）
+    return (
+      <TouchableOpacity
+        style={[styles.item]}
+        onPress={() => navigation.navigate('EditExercise', { state: id })}
+      >
+        <View style={[styles.circle]}></View>
+        <View style={styles.exerciseList}>
+          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.duration}>{duration} mins</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  }
 };
 
 const styles = StyleSheet.create({
