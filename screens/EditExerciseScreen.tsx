@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CommonStyles from '../styles/commonStyles';
@@ -19,7 +19,7 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
   useEffect(() => {
     getEditExercise();
   }, []);
-  // 編集したエクササイズをホーム画面に渡す
+  // ホームで選択したエクササイズ情報を取得して、その内容をテキスト等にセットする
   const getEditExercise = async() => {
     const savedExercises = await AsyncStorage.getItem('exercises');
     // JSON形式の文字列をオブジェクトに変換。これによりlengthでデータ数を取得できる
@@ -35,21 +35,61 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
   // 編集したエクササイズをホーム画面に渡す
   const handleEditExercise = async() => {
     if (exerciseName.trim()) {
-      const editExercise = {
-        id: route.params?.state,
-        name: exerciseName,
-        category: parseInt(selectedCategory, 10),
-        duration: parseInt(duration, 10),
-        color: categories.find((cat) => parseInt(cat.value, 10) === parseInt(selectedCategory, 10))['graphColor'],
-        exercisedDate: selectedDate,
-      };
+      const savedExercises = await AsyncStorage.getItem('exercises');
+      const parsedExercises = JSON.parse(savedExercises); // JSON形式の文字列をオブジェクトに変換
+      const updatedExercises = parsedExercises.map(item =>
+        item.id === route.params?.state
+          ? { ...item, 
+            name: exerciseName,
+            category: parseInt(selectedCategory, 10),
+            duration: parseInt(duration, 10),
+            color: categories.find((cat) => parseInt(cat.value, 10) === parseInt(selectedCategory, 10))['graphColor'],
+            exercisedDate: selectedDate,
+          } // ここで更新するデータをセット
+          : item
+      );
+      // エクササイズ保存
+      await AsyncStorage.setItem('exercises', JSON.stringify(updatedExercises));
       // 入力欄をリセット
       setExerciseName('');
       setDuration('');
       setSelectedCategory('');
       // 型を適用した上でnavigation.navigateに引数を渡す
-      navigation.navigate('Home', { state: editExercise });
+      navigation.navigate('Home', { 
+        state: selectedDate,
+        updatedAt: new Date().toISOString()
+      });
     }
+  };
+  // 削除機能
+  const handleDeleteExercise = async() => {
+    Alert.alert(
+      "削除しても良いですか？", 
+      "",
+      [
+        {
+          text: "キャンセル",
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: async () => {
+            const savedExercises = await AsyncStorage.getItem('exercises');
+            const parsedExercises = JSON.parse(savedExercises); // JSON形式の文字列をオブジェクトに変換
+            const deletedExercises = parsedExercises.filter(item => item.id === route.params?.state)[0];
+            const filteredExercises = parsedExercises.filter(item => item.id !== route.params?.state);
+            // 削除対象を除いた、エクササイズを改めてAsyncStorageに保存
+            await AsyncStorage.setItem("exercises", JSON.stringify(filteredExercises));
+            // 入力欄をリセット
+            setExerciseName('');
+            setDuration('');
+            setSelectedCategory('');
+            // エクサイズIDを引数として渡す
+            navigation.navigate('Home', { state: deletedExercises['exercisedDate'], updatedAt: new Date().toISOString() });
+          },
+        },
+      ]
+    );
   };
   // 日付のフォーマットを調整する関数（例: yyyy-mm-dd）
   const formatDate = (date: Date) => {
@@ -125,12 +165,21 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
           </View>
         </View>
       </Modal>
+      {/* 編集ボタン */}
       <TouchableOpacity
         style={styles.button}
         accessible={true}
         onPress={handleEditExercise}
         accessibilityRole="button">
         <Text style={CommonStyles.buttonText}>Edit Exercise</Text>
+      </TouchableOpacity>
+      {/* 削除ボタン */}
+      <TouchableOpacity
+        style={styles.button}
+        accessible={true}
+        onPress={handleDeleteExercise}
+        accessibilityRole="button">
+        <Text style={CommonStyles.buttonText}>Delete Exercise</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -153,6 +202,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#007BFF',
     padding: 10,
     borderRadius: 5,
+    marginBottom: 10,
   },
   selectedCategory: {
     fontSize: 16,

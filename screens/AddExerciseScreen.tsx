@@ -15,14 +15,13 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
   // 日付入力用
   const [selectedDate, setSelectedDate] = useState(route.params?.state); // 今日の日付をデフォルトに設定
   const [isCalendarVisible, setCalendarVisible] = useState(false);
-console.log(selectedDate);
-  // 新しいエクササイズをホーム画面に渡す
+
   const handleAddExercise = async() => {
     if (exerciseName.trim()) {
       const savedExercises = await AsyncStorage.getItem('exercises');
        // JSON形式の文字列をオブジェクトに変換。これによりlengthでデータ数を取得できる
-      const parsedExercises = JSON.parse(savedExercises);
-      const counter = parsedExercises == null ? 1 : Number(parsedExercises?.length) + 1;
+      const parsedExercises = savedExercises ? JSON.parse(savedExercises) : [];
+      const counter = Number(parsedExercises?.length) + 1;
       const newExercise = {
         id: counter,
         name: exerciseName,
@@ -31,12 +30,21 @@ console.log(selectedDate);
         color: categories.find((cat) => parseInt(cat.value, 10) === parseInt(selectedCategory, 10))['graphColor'],
         exercisedDate: selectedDate,
       };
+      // 元々登録されているデータに、今回の新規データを追加した配列を用意する
+      const newExercise2 = [
+        ...parsedExercises,
+          newExercise
+      ];
+      await AsyncStorage.setItem('exercises', JSON.stringify(newExercise2));
       // 入力欄をリセット
       setExerciseName('');
       setDuration('');
       setSelectedCategory('');
       // 型を適用した上でnavigation.navigateに引数を渡す
-      navigation.navigate('Home', { state: newExercise });
+      navigation.navigate('Home', {
+        state: selectedDate,
+        updatedAt: new Date().toISOString()
+      });
     }
   };
   // 日付のフォーマットを調整する関数（例: yyyy-mm-dd）
