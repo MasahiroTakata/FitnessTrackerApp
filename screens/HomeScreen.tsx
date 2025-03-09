@@ -19,6 +19,9 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     .join("-"); // 配列に格納された値をハイフンで結合して文字列にする
   const [exercises, setExercises] = useState<Exercise[]>([]); // 初期化
   const [selectedDate, setSelectedDate] = useState(formatted); // 初期は今日の日付
+  const [markedDateDatas, setMarkedDateDatas] = useState<
+  Record<string, { selected: boolean; marked: boolean; dotColor: string }>
+  >({});
   const navigation = useNavigation();
   const isFirstRender = useRef(true);
 
@@ -60,9 +63,23 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
         if(parsedExercises == null){
           setExercises([]);
         } else{
-            // filterメソッドを使用してexercisedDateが、今日の日付のデータを取得
-            const filteredExercises = parsedExercises.filter(item => item.exercisedDate === selectedDate);
-            setExercises(filteredExercises);
+          // filterメソッドを使用してexercisedDateが、今日の日付のデータを取得
+          const filteredExercises = parsedExercises.filter(item => item.exercisedDate === selectedDate);
+          setExercises(filteredExercises);
+          // エクササイズが記録されている日付のリストを取得する
+          const dateList = parsedExercises.map(item => item.exercisedDate);
+          // Setクラスを使って、dateListの重複を排除している
+          const uniqueDates = new Set(dateList);
+          // uniqueDatesをArray.fromで配列に変換する
+          // reduce関数で、{ 日付: オブジェクト }の形に変換&集積した
+          const markedDates = Array.from(uniqueDates).reduce<Record<string, { selected: boolean; marked: boolean; dotColor: string }>>(
+            (acc, date) => {
+              acc[date as string] = { selected: false, marked: true, dotColor: 'blue' };
+              return acc;
+            },
+            {}
+          );
+          setMarkedDateDatas(markedDates);
         }
       } catch (error) {
         console.error('Error loading data', error);
@@ -86,6 +103,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
         onDayPress={(day) => setSelectedDate(day.dateString)}
         // 選択された日付のスタイル変更
         markedDates={{
+          ...markedDateDatas, // スプレッド演算子でオブジェクトの中身を展開している
           [selectedDate]: { selected: true, marked: true, selectedColor: 'blue' },
         }}
       />
