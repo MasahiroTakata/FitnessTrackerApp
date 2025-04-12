@@ -4,17 +4,25 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CommonStyles from '../styles/commonStyles';
 import RNPickerSelect from 'react-native-picker-select';
-import { categories } from '@/types/categories';
-import { Calendar } from "react-native-calendars";
+import { CategoryRecords } from '@/constants/CategoryRecords'
+import { Calendar, DateData } from "react-native-calendars";
+import { StackNavigationProp } from '@react-navigation/stack';
 
 const AddExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型を<any>として宣言している
   const [exerciseName, setExerciseName] = useState('');
   const [duration, setDuration] = useState('');
-  const navigation = useNavigation();
   const [selectedCategory, setSelectedCategory] = useState('');
   // 日付入力用
   const [selectedDate, setSelectedDate] = useState(route.params?.state); // 今日の日付をデフォルトに設定
   const [isCalendarVisible, setCalendarVisible] = useState(false);
+  // ナビゲーションの型を定義
+  type RootStackParamList = {
+    Home: { state: string, updatedAt: string };
+    Graph: undefined;
+    AddExercise: { state: string };
+  };
+  type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+  const navigation = useNavigation<NavigationProp>();
 
   const handleAddExercise = async() => {
     if (exerciseName.trim()) {
@@ -27,7 +35,7 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
         name: exerciseName,
         category: parseInt(selectedCategory, 10),
         duration: parseInt(duration, 10),
-        color: categories.find((cat) => parseInt(cat.value, 10) === parseInt(selectedCategory, 10))['graphColor'],
+        color: CategoryRecords.find((cat) => parseInt(cat.value, 10) === parseInt(selectedCategory, 10))?.['graphColor'],
         exercisedDate: selectedDate,
       };
       // 元々登録されているデータに、今回の新規データを追加した配列を用意する
@@ -55,7 +63,7 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
     return `${year}/${month}/${day}`;
   };
   // 日付を選択したときの処理
-  const onDateSelect = (date: Date) => {
+  const onDateSelect = (date: String) => {
     setSelectedDate(date);
     setCalendarVisible(false); // カレンダーを閉じる
   };
@@ -76,7 +84,7 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
         onValueChange={(value) => {
           setSelectedCategory(value);
         }}
-        items={categories}
+        items={CategoryRecords}
         placeholder={{ label: 'Select an option...', value: "", color: "#000" }}
         style={pickerSelectStyles}
         value={selectedCategory} // 現在選択されている値
@@ -107,7 +115,7 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
             <Calendar
               // 現在の日付を初期選択状態に設定
               current={selectedDate || undefined}
-              onDayPress={(day) => onDateSelect(day.dateString)} // 日付選択時のコールバック
+              onDayPress={(day : DateData) => onDateSelect(day.dateString)} // 日付選択時のコールバック
               markedDates={{
                 [selectedDate]: { selected: true, selectedColor: "blue" }, // 選択中の日付を強調表示
               }}
