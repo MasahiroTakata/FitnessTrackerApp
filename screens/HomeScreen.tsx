@@ -5,7 +5,8 @@ import ExerciseItem from './ExerciseItem';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../styles/commonStyles';
 import { Exercise } from '@/types/exercise';
-import { Calendar } from 'react-native-calendars';
+import { Calendar, DateData } from 'react-native-calendars';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネントの引数（props）として、自動的に提供される
   const today = new Date();
@@ -22,7 +23,14 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   const [markedDateDatas, setMarkedDateDatas] = useState<
   Record<string, { selected: boolean; marked: boolean; dotColor: string }>
   >({});
-  const navigation = useNavigation();
+  // ナビゲーションの型を定義
+  type RootStackParamList = {
+    Home: undefined;
+    Graph: undefined;
+    AddExercise: { state: string };
+  };
+  type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+  const navigation = useNavigation<NavigationProp>();
   const isFirstRender = useRef(true);
 
   const loadData = async () => {
@@ -37,7 +45,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
 
     try {
       const savedExercises = await AsyncStorage.getItem('exercises');
-      const parsedExercises = JSON.parse(savedExercises); // JSON形式の文字列をオブジェクトに変換
+      const parsedExercises : Exercise[] = savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
       // データが１件も保存されていない場合
       if(parsedExercises == null){
         setExercises([]);
@@ -58,7 +66,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     const selectDateData = async () => {
       try {
         const savedExercises = await AsyncStorage.getItem('exercises');
-        const parsedExercises = JSON.parse(savedExercises); // JSON形式の文字列をオブジェクトに変換
+        const parsedExercises : Exercise[]= savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
         // データが１件も保存されていない場合
         if(parsedExercises == null){
           setExercises([]);
@@ -100,7 +108,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
       <Text style={styles.title}>Fitness Tracker</Text>
       <Calendar
         // 日付が選択された時のコールバック
-        onDayPress={(day) => setSelectedDate(day.dateString)}
+        onDayPress={(day : DateData) => setSelectedDate(day.dateString)}
         // 選択された日付のスタイル変更
         markedDates={{
           ...markedDateDatas, // スプレッド演算子でオブジェクトの中身を展開している

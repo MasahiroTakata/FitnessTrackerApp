@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 interface ExerciseItemProps {
-  id: number;
+  id: string;
   name: string;
   duration: number;
   color: string;
@@ -12,8 +13,13 @@ interface ExerciseItemProps {
 const screenWidth = Dimensions.get('window').width;
 
 const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', duration = '', color = 'white' }) => {
-  const navigation = useNavigation();
-  
+  // ナビゲーションの型を定義
+  type RootStackParamList = {
+    EditExercise: { state: string };
+  };
+  type NavigationProp = StackNavigationProp<RootStackParamList, 'EditExercise'>;
+  const navigation = useNavigation<NavigationProp>();
+
   if(color !== 'white'){
     return ( // 円グラフ画面
       <View style= {[styles.item, {flexDirection: 'row', alignItems: 'center'}]}>

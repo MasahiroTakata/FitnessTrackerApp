@@ -4,9 +4,15 @@ import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import DonutChart from './DonutChart';
 import { useNavigation } from '@react-navigation/native';
 import styles from '../styles/commonStyles';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 const GraphScreen: React.FC = () => {
-  const navigation = useNavigation();
+  // ナビゲーションの型を定義
+  type RootStackParamList = {
+    Home: undefined;
+  };
+  type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+  const navigation = useNavigation<NavigationProp>();
 
   return (
     <View style={styles.container}>

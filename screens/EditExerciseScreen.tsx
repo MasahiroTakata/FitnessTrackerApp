@@ -4,17 +4,26 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CommonStyles from '../styles/commonStyles';
 import RNPickerSelect from 'react-native-picker-select';
-import { categories } from '@/types/categories';
-import { Calendar } from "react-native-calendars";
+import { Exercise } from '@/types/exercise';
+import { CategoryRecords } from '@/constants/CategoryRecords'
+import { Calendar, DateData } from 'react-native-calendars';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型を<any>として宣言している
   const [exerciseName, setExerciseName] = useState('');
-  const [duration, setDuration] = useState('');
-  const navigation = useNavigation();
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [duration, setDuration] = useState<number>(0);
+  const [selectedCategory, setSelectedCategory] = useState<number>(0);
   // 日付入力用
   const [selectedDate, setSelectedDate] = useState(''); // 今日の日付をデフォルトに設定
   const [isCalendarVisible, setCalendarVisible] = useState(false);
+  // ナビゲーションの型を定義
+  type RootStackParamList = {
+    Home: { state: string, updatedAt: string };
+    Graph: undefined;
+    AddExercise: { state: string };
+  };
+  type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+  const navigation = useNavigation<NavigationProp>();
   // 初回読み込みで呼び出す（第二引数を空にすることで、初期表示時にこのuseEffectが呼び出される）
   useEffect(() => {
     getEditExercise();
@@ -23,7 +32,7 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
   const getEditExercise = async() => {
     const savedExercises = await AsyncStorage.getItem('exercises');
     // JSON形式の文字列をオブジェクトに変換。これによりlengthでデータ数を取得できる
-    const parsedExercises = JSON.parse(savedExercises);
+    const parsedExercises : Exercise[] = savedExercises ? JSON.parse(savedExercises) : [];
     // routeから受け取ったidを基に、保存されたエクササイズ内から該当のエクササイズを検索する
     const filteredExercises = parsedExercises.filter(item => item.id === route.params?.state)[0];
     // 入力欄をセット
@@ -36,14 +45,14 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
   const handleEditExercise = async() => {
     if (exerciseName.trim()) {
       const savedExercises = await AsyncStorage.getItem('exercises');
-      const parsedExercises = JSON.parse(savedExercises); // JSON形式の文字列をオブジェクトに変換
+      const parsedExercises : Exercise[] = savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
       const updatedExercises = parsedExercises.map(item =>
         item.id === route.params?.state
           ? { ...item, 
             name: exerciseName,
-            category: parseInt(selectedCategory, 10),
-            duration: parseInt(duration, 10),
-            color: categories.find((cat) => parseInt(cat.value, 10) === parseInt(selectedCategory, 10))['graphColor'],
+            category: selectedCategory,
+            duration: duration,
+            color: CategoryRecords.find((cat) => parseInt(cat.value, 10) === selectedCategory)?.['graphColor'],
             exercisedDate: selectedDate,
           } // ここで更新するデータをセット
           : item
@@ -52,8 +61,8 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
       await AsyncStorage.setItem('exercises', JSON.stringify(updatedExercises));
       // 入力欄をリセット
       setExerciseName('');
-      setDuration('');
-      setSelectedCategory('');
+      setDuration(0);
+      setSelectedCategory(0);
       // 型を適用した上でnavigation.navigateに引数を渡す
       navigation.navigate('Home', { 
         state: selectedDate,
@@ -75,15 +84,15 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
           text: "OK",
           onPress: async () => {
             const savedExercises = await AsyncStorage.getItem('exercises');
-            const parsedExercises = JSON.parse(savedExercises); // JSON形式の文字列をオブジェクトに変換
+            const parsedExercises : Exercise[] = savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
             const deletedExercises = parsedExercises.filter(item => item.id === route.params?.state)[0];
             const filteredExercises = parsedExercises.filter(item => item.id !== route.params?.state);
             // 削除対象を除いた、エクササイズを改めてAsyncStorageに保存
             await AsyncStorage.setItem("exercises", JSON.stringify(filteredExercises));
             // 入力欄をリセット
             setExerciseName('');
-            setDuration('');
-            setSelectedCategory('');
+            setDuration(0);
+            setSelectedCategory(0);
             // エクサイズIDを引数として渡す
             navigation.navigate('Home', { state: deletedExercises['exercisedDate'], updatedAt: new Date().toISOString() });
           },
@@ -99,7 +108,7 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
     return `${year}/${month}/${day}`;
   };
   // 日付を選択したときの処理
-  const onDateSelect = (date: Date) => {
+  const onDateSelect = (date: string) => {
     setSelectedDate(date);
     setCalendarVisible(false); // カレンダーを閉じる
   };
@@ -120,7 +129,7 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
         onValueChange={(value) => {
           setSelectedCategory(value);
         }}
-        items={categories}
+        items={CategoryRecords}
         placeholder={{ label: 'Select an option...', value: "", color: "#000" }}
         style={pickerSelectStyles}
         value={selectedCategory} // 現在選択されている値
@@ -131,7 +140,7 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
       <TextInput
         style={styles.input}
         value={duration.toString()}
-        onChangeText={setDuration}
+        onChangeText={(text) => setDuration(Number(text))}
         keyboardType="numeric"
         placeholder="Enter duration name(numeric only)"
         placeholderTextColor="gray"
@@ -151,7 +160,7 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
             <Calendar
               // 現在の日付を初期選択状態に設定
               current={selectedDate || undefined}
-              onDayPress={(day) => onDateSelect(day.dateString)} // 日付選択時のコールバック
+              onDayPress={(day : DateData) => onDateSelect(day.dateString)} // 日付選択時のコールバック
               markedDates={{
                 [selectedDate]: { selected: true, selectedColor: "blue" }, // 選択中の日付を強調表示
               }}
