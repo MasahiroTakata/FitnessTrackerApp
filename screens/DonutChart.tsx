@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Button } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 import styles from '../styles/donutStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -7,48 +7,19 @@ import ExerciseItem from './ExerciseItem';
 import { CategoryRecords } from '@/constants/CategoryRecords'
 import { Exercise } from '@/types/exercise';
 import { summarizedExercises } from '@/types/summarizedExercises';
+import commonStyles from '../styles/commonStyles';
 import dayjs from 'dayjs';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/native';
+
+type DonutChartProps = {
+  selectedDateProp: string; // ← ここを必要に応じて型定義する（例: string や number や オブジェクト）
+};
 // categoryから対応するlabelを取得する関数（propsがFlatListにて受け取ったカテゴリーID）
 const getCategoryLabel = (category: number): string => {
   // catは、categoriesの１データのこと。findでcategoriesを1行ずつ検索している
   const foundCategory = CategoryRecords.find((cat) => parseInt(cat.value, 10) === category);
   return foundCategory ? foundCategory.label : "不明"; // 該当するカテゴリーがなければ「不明」
-};
-
-const getExercisesData = (savedExercises: string): summarizedExercises[] => {
-  // JSON形式の文字列をオブジェクトに変換。これによりlengthでデータ数を取得できる
-  const parsedExercises : Exercise[] = JSON.parse(savedExercises);
-  const nowMonth = new Date();
-  const nowMonthFormatted = nowMonth
-    .toLocaleDateString("ja-JP", {
-      year: "numeric",
-      month: "2-digit", // デフォルトは１桁（1月だと1と表示される）、2-digitとすることで２桁としてくれる（１月なら01月）
-    })
-    .split("/") // スラッシュ区切りで配列で格納する
-    .join("-"); // 配列に格納された値をハイフンで結合して文字列にする
-
-  const nowMonthExercises = parsedExercises.filter(exercise => exercise.exercisedDate.startsWith(nowMonthFormatted));
-  // parsedExercisesからカテゴリーIDを重複なしで取得する
-  const categoryList = nowMonthExercises.map(item => item.category);
-  // Setクラスで重複なくカテゴリーを取得する
-  const uniqueCategories = new Set(categoryList);
-  // 重複のないカテゴリーIDを元に新しい配列を生成
-  const summarizedExercises = Array.from(uniqueCategories).map(categoryId => {
-    // 同じカテゴリーIDのデータを取得
-    const exercisesInCategory = nowMonthExercises.filter(item => item.category === categoryId);
-    // mapで取得したcategoryIdで、colorを取得する
-    const color = CategoryRecords.find((cat) => parseInt(cat.value, 10) === categoryId)?.['graphColor'];
-    // durationの合計値を計算
-    const totalDuration = exercisesInCategory.reduce((sum, item) => sum + item.duration, 0);
-    // 新しいオブジェクトとして返す
-    return {
-      category: categoryId,
-      duration: totalDuration,
-      color: color,
-    };
-  });
-
-  return summarizedExercises;
 };
 
 const getExercisesbyYearMonth = async(selectedDateFormatted: string): Promise<summarizedExercises[]> => {
@@ -83,12 +54,19 @@ const getExercisesbyYearMonth = async(selectedDateFormatted: string): Promise<su
   }
 };
 
-const DonutChart : React.FC = () =>{
+const DonutChart = ({ selectedDateProp } : DonutChartProps) =>{
+    // ナビゲーションの型を定義
+    type RootStackParamList = {
+      Home: { state: string };
+    };
+    type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+    const navigation = useNavigation<NavigationProp>();
+  
   // const [exercises, setExercises] = useState<Exercise[]>([]); // 初期化
   const [summarizedExercises, setSummarizedExercises] = useState<summarizedExercises[]>([]);
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const isFirstRender = useRef(true);
-  
+
   const handlePrevMonth = () => {
     setSelectedDate((prev) => prev.subtract(1, "month"));
   };
@@ -98,21 +76,15 @@ const DonutChart : React.FC = () =>{
   // 初期表示時に呼ばれる
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const savedExercises = await AsyncStorage.getItem('exercises');
-        const summarizedExercises = savedExercises ? getExercisesData(savedExercises) : [];
-        console.log(Array.isArray(summarizedExercises));
-
-        setSummarizedExercises(summarizedExercises);
-      } catch (error) {
-        console.error('Failed to load data:', error);
-      }
+      const formattedDate = dayjs(selectedDateProp).format('YYYY-MM');
+      setSelectedDate(dayjs(formattedDate));
     };
     fetchData();
   }, []);
   // 年月が変更された時に呼び出すuseEffect関数
   useEffect(() => {
     const getSelectedYearMonth = async () => {
+
       if (isFirstRender.current) {
         // 初回レンダー時は実行せず、フラグを false にする
         isFirstRender.current = false;
@@ -120,7 +92,6 @@ const DonutChart : React.FC = () =>{
       }
 
       const summarizedExercises = await getExercisesbyYearMonth(selectedDate.format("YYYY-MM"));
-      console.log(Array.isArray(summarizedExercises));
       setSummarizedExercises(summarizedExercises);
     };
     getSelectedYearMonth();
@@ -170,6 +141,15 @@ const DonutChart : React.FC = () =>{
         )}
         keyExtractor={(item) => `${item.category}`}
       />
+      <TouchableOpacity
+        style={commonStyles.button}
+        accessible={true}
+        onPress={() => navigation.navigate('Home', { state: dayjs(selectedDate).format('YYYY-MM') })}
+        accessibilityRole="button">
+        <Text style={commonStyles.buttonText}>戻る
+        </Text>
+      </TouchableOpacity>
+
     </View>
   );
 };
