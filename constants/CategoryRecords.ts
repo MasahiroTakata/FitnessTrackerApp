@@ -6,4 +6,5 @@ export const CategoryRecords = [
   { label: '腹筋', value: '5', color: "#000", graphColor: "orange" },
   { label: '足', value: '6', color: "#000", graphColor: "blue" },
   { label: '有酸素運動', value: '7', color: "#000", graphColor: "yellow"},
+  { label: 'その他', value: '8', color: "#000", graphColor: "white" }
 ];

@@ -8,6 +8,14 @@ import { Exercise } from '@/types/exercise';
 import { Calendar, DateData } from 'react-native-calendars';
 import { StackNavigationProp } from '@react-navigation/stack';
 
+type DateObject = {
+  dateString: string;
+  day: number;
+  month: number;
+  year: number;
+  timestamp: number;
+};
+
 const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネントの引数（props）として、自動的に提供される
   const today = new Date();
   const formatted = today
@@ -26,16 +34,25 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   // ナビゲーションの型を定義
   type RootStackParamList = {
     Home: undefined;
-    Graph: undefined;
+    Graph: { state: string };
     AddExercise: { state: string };
   };
   type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
   const navigation = useNavigation<NavigationProp>();
   const isFirstRender = useRef(true);
+  const nowYearMonth = today
+  .toLocaleDateString("ja-JP", {
+    year: "numeric",
+    month: "2-digit", // デフォルトは１桁（1月だと1と表示される）、2-digitとすることで２桁としてくれる（１月なら01月）
+  })
+  .split("/") // スラッシュ区切りで配列で格納する
+  .join("-"); // 配列に格納された値をハイフンで結合して文字列にする
+  const [currentMonth, setCurrentMonth] = useState(nowYearMonth);
 
   const loadData = async () => {
     if (isFirstRender.current) {
       // 初回レンダー時は実行せず、フラグを false にする
+      console.log(isFirstRender.current);
       isFirstRender.current = false;
 
       return;
@@ -114,11 +131,15 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
           ...markedDateDatas, // スプレッド演算子でオブジェクトの中身を展開している
           [selectedDate]: { selected: true, marked: true, selectedColor: 'blue' },
         }}
+        onMonthChange={(month: DateObject) => {
+          const formattedMonth = `${month.year}-${String(month.month).padStart(2, '0')}`;
+          setCurrentMonth(formattedMonth);
+        }}
       />
       <FlatList
         data={ exercises }
         renderItem={({ item }) => (
-          <ExerciseItem id = {item.id} name={item.name} duration={item.duration} color='white' />
+          <ExerciseItem id = {item.id} name={item.name} duration={item.duration} color='' />
         )}
         keyExtractor={(item) => `${item.id}`}
       />
@@ -132,7 +153,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
       <TouchableOpacity
         style={styles.button}
         accessible={true}
-        onPress={() => navigation.navigate('Graph')}
+        onPress={() => navigation.navigate('Graph', { state: currentMonth })}
         accessibilityRole="button">
         <Text style={styles.buttonText}>Go To Graph
         </Text>

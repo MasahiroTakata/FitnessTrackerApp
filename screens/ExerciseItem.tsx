@@ -12,7 +12,7 @@ interface ExerciseItemProps {
 // デバイスの幅を取得（デバイスを横にした時の幅は取ってくれないっぽい、DimensionsというAPIは。）
 const screenWidth = Dimensions.get('window').width;
 
-const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', duration = '', color = 'white' }) => {
+const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', duration = '', color = '' }) => {
   // ナビゲーションの型を定義
   type RootStackParamList = {
     EditExercise: { state: string };
@@ -20,7 +20,7 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', duratio
   type NavigationProp = StackNavigationProp<RootStackParamList, 'EditExercise'>;
   const navigation = useNavigation<NavigationProp>();
 
-  if(color !== 'white'){
+  if(color !== ''){
     return ( // 円グラフ画面
       <View style= {[styles.item, {flexDirection: 'row', alignItems: 'center'}]}>
         <View style={[styles.circle, { backgroundColor: color }]}></View>
