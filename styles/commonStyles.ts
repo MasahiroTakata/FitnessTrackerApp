@@ -1,4 +1,7 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
+
+// デバイスの幅を取得（デバイスを横にした時の幅は取ってくれないっぽい、DimensionsというAPIは。）
+const screenWidth = Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
   container: {
@@ -21,6 +24,18 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  daysText: {
+    textAlign: 'left',
+    backgroundColor: 'gray',
+    color: 'white',
+    padding: 2,
+  },
+  homeItem: {
+    padding: 16,
+    borderBottomWidth: 0.3,
+    borderBottomColor: 'gray',
+    width: screenWidth * 0.85,
   },
 });
 

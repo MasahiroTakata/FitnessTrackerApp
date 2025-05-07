@@ -9,6 +9,7 @@ interface ExerciseItemProps {
   duration: number;
   color: string;
 }
+
 // デバイスの幅を取得（デバイスを横にした時の幅は取ってくれないっぽい、DimensionsというAPIは。）
 const screenWidth = Dimensions.get('window').width;
 
@@ -20,9 +21,33 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', duratio
   type NavigationProp = StackNavigationProp<RootStackParamList, 'EditExercise'>;
   const navigation = useNavigation<NavigationProp>();
 
-  if(color !== ''){
+  if(color === ''){
+    return (
+      <TouchableOpacity
+        style={[styles.homeItem]}
+        onPress={() => navigation.navigate('EditExercise', { state: id })}
+      >
+        <View style={styles.exerciseList}>
+          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.duration}>{duration} mins</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  } else if(color === 'isLast'){
+    return (
+      <TouchableOpacity
+        style={[styles.lastItem]}
+        onPress={() => navigation.navigate('EditExercise', { state: id })}
+      >
+        <View style={styles.exerciseList}>
+          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.duration}>{duration} mins</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  } else{ // ホーム画面（編集画面を表示する）
     return ( // 円グラフ画面
-      <View style= {[styles.item, {flexDirection: 'row', alignItems: 'center'}]}>
+      <View style= {[styles.graphItem, {flexDirection: 'row', alignItems: 'center'}]}>
         <View style={[styles.circle, { backgroundColor: color }]}></View>
         <View style={styles.exerciseList}>
           <Text style={styles.name}>{name}</Text>
@@ -30,24 +55,45 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', duratio
         </View>
       </View>
     );
-  } else{ // ホーム画面（編集画面を表示する）
-    return (
-      <TouchableOpacity
-        style={[styles.item]}
-        onPress={() => navigation.navigate('EditExercise', { state: id })}
-      >
-        <View style={[styles.circle]}></View>
-        <View style={styles.exerciseList}>
-          <Text style={styles.name}>{name}</Text>
-          <Text style={styles.duration}>{duration} mins</Text>
-        </View>
-      </TouchableOpacity>
-    );
   }
+
+  // if(color !== ''){
+  //   return ( // 円グラフ画面
+  //     <View style= {[styles.graphItem, {flexDirection: 'row', alignItems: 'center'}]}>
+  //       <View style={[styles.circle, { backgroundColor: color }]}></View>
+  //       <View style={styles.exerciseList}>
+  //         <Text style={styles.name}>{name}</Text>
+  //         <Text style={styles.duration}>{duration} mins</Text>
+  //       </View>
+  //     </View>
+  //   );
+  // } else{ // ホーム画面（編集画面を表示する）
+  //   return (
+  //     <TouchableOpacity
+  //       style={[styles.homeItem]}
+  //       onPress={() => navigation.navigate('EditExercise', { state: id })}
+  //     >
+  //       <View style={styles.exerciseList}>
+  //         <Text style={styles.name}>{name}</Text>
+  //         <Text style={styles.duration}>{duration} mins</Text>
+  //       </View>
+  //     </TouchableOpacity>
+  //   );
+  // }
 };
 
 const styles = StyleSheet.create({
-  item: {
+  homeItem: {
+    padding: 16,
+    borderBottomWidth: 0.3,
+    borderBottomColor: 'gray',
+    width: screenWidth * 0.85,
+  },
+  lastItem: {
+    padding: 16,
+    width: screenWidth * 0.85,
+  },
+  graphItem: {
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
