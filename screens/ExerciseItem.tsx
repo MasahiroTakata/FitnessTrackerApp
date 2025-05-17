@@ -56,30 +56,6 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', duratio
       </View>
     );
   }
-
-  // if(color !== ''){
-  //   return ( // 円グラフ画面
-  //     <View style= {[styles.graphItem, {flexDirection: 'row', alignItems: 'center'}]}>
-  //       <View style={[styles.circle, { backgroundColor: color }]}></View>
-  //       <View style={styles.exerciseList}>
-  //         <Text style={styles.name}>{name}</Text>
-  //         <Text style={styles.duration}>{duration} mins</Text>
-  //       </View>
-  //     </View>
-  //   );
-  // } else{ // ホーム画面（編集画面を表示する）
-  //   return (
-  //     <TouchableOpacity
-  //       style={[styles.homeItem]}
-  //       onPress={() => navigation.navigate('EditExercise', { state: id })}
-  //     >
-  //       <View style={styles.exerciseList}>
-  //         <Text style={styles.name}>{name}</Text>
-  //         <Text style={styles.duration}>{duration} mins</Text>
-  //       </View>
-  //     </TouchableOpacity>
-  //   );
-  // }
 };
 
 const styles = StyleSheet.create({
