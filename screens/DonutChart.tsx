@@ -57,7 +57,7 @@ const getExercisesbyYearMonth = async(selectedDateFormatted: string): Promise<su
 const DonutChart = ({ selectedDateProp } : DonutChartProps) =>{
     // ナビゲーションの型を定義
     type RootStackParamList = {
-      Home: { state: string };
+      Home: { selectedMonth: string };
     };
     type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
     const navigation = useNavigation<NavigationProp>();
@@ -144,7 +144,7 @@ const DonutChart = ({ selectedDateProp } : DonutChartProps) =>{
       <TouchableOpacity
         style={commonStyles.button}
         accessible={true}
-        onPress={() => navigation.navigate('Home', { state: dayjs(selectedDate).format('YYYY-MM') })}
+        onPress={() => navigation.navigate('Home', { selectedMonth: dayjs(selectedDate).format('YYYY-MM') })}
         accessibilityRole="button">
         <Text style={commonStyles.buttonText}>戻る
         </Text>

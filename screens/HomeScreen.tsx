@@ -70,6 +70,12 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   };
 
   useEffect(() => {
+    if (route.params?.selectedMonth) {
+      setCurrentMonth(route.params.selectedMonth);
+    }
+  }, [route.params?.selectedMonth]);
+
+  useEffect(() => {
     if (isFirstRender.current) {
       // 初回レンダー時は実行せず、フラグを false にする
       isFirstRender.current = false;
@@ -212,6 +218,8 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     <View style={styles.container}>
       <Text style={styles.title}>Fitness Tracker</Text>
       <Calendar
+        key={currentMonth + '-01'}
+        current={currentMonth + '-01'}
         // 日付が選択された時のコールバック
         onDayPress={(day : DateData) => {
           const selectedDate = day.dateString; // '2025-05-10' みたいな文字列

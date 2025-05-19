@@ -18,14 +18,6 @@ const GraphScreen: React.FC<any> = (state) => {
     <View style={styles.container}>
       <Text style={styles.title}>エクササイズ割合</Text>
       <DonutChart selectedDateProp={state.route?.params.state}/>
-      {/* <TouchableOpacity
-        style={styles.button}
-        accessible={true}
-        onPress={() => navigation.navigate('Home')}
-        accessibilityRole="button">
-        <Text style={styles.buttonText}>戻る
-        </Text>
-      </TouchableOpacity> */}
     </View>
   );
 };
