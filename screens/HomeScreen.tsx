@@ -83,7 +83,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
       return;
     }
 
-    const yearMonth = dayjs(route.params?.state).format('YYYY-MM');
     const loadData = async () => {
       try {
         const savedExercises = await AsyncStorage.getItem('exercises');
@@ -135,7 +134,13 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
         console.error('Error loading data', error);
       }
     };
-    loadData();
+    const yearMonth = dayjs(route.params?.state).format('YYYY-MM');
+    // 比較する
+    if(yearMonth === currentMonth){
+      loadData();
+    } else{
+      setCurrentMonth(yearMonth);
+    }
   }, [route.params?.updatedAt]);
 
   // その年月のエクササイズ情報を取得する
