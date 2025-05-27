@@ -135,7 +135,7 @@ const DonutChart = ({ selectedDateProp } : DonutChartProps) =>{
       <FlatList
         data={ summarizedExercises }
         renderItem={({ item }) => (
-          <ExerciseItem id={''} name={ getCategoryLabel(item.category) } duration={item.duration} color={item.color ? item.color : ''} />
+          <ExerciseItem id={''} name={ getCategoryLabel(item.category) } duration={item.duration} color={item.color ? item.color : 'noData'} />
         )}
         keyExtractor={(item) => `${item.category}`}
       />
