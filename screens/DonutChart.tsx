@@ -17,7 +17,7 @@ type DonutChartProps = {
 };
 // categoryから対応するlabelを取得する関数（propsがFlatListにて受け取ったカテゴリーID）
 const getCategoryLabel = (category: number): string => {
-  // catは、categoriesの１データのこと。findでcategoriesを1行ずつ検索している
+  // catは、CategoryRecordsの１データのこと。findでcategoryを1行ずつ検索している
   const foundCategory = CategoryRecords.find((cat) => parseInt(cat.value, 10) === category);
   return foundCategory ? foundCategory.label : "不明"; // 該当するカテゴリーがなければ「不明」
 };
@@ -36,12 +36,12 @@ const getExercisesbyYearMonth = async(selectedDateFormatted: string): Promise<su
       // 同じカテゴリーIDのデータを取得
       const exercisesInCategory = nowMonthExercises.filter(item => item.category === categoryId);
       // mapで取得したcategoryIdで、colorを取得する
-      const color = CategoryRecords.find((cat) => parseInt(cat.value, 10) === categoryId)?.['graphColor'];
+      const color = CategoryRecords.find((cat) => parseInt(cat.value, 10) === parseInt(categoryId,10))?.['graphColor'];
       // durationの合計値を計算
       const totalDuration = exercisesInCategory.reduce((sum, item) => sum + item.duration, 0);
       // 新しいオブジェクトとして返す
       return {
-        category: categoryId,
+        category: parseInt(categoryId, 10),
         duration: totalDuration,
         color: color,
       };
@@ -55,14 +55,12 @@ const getExercisesbyYearMonth = async(selectedDateFormatted: string): Promise<su
 };
 
 const DonutChart = ({ selectedDateProp } : DonutChartProps) =>{
-    // ナビゲーションの型を定義
-    type RootStackParamList = {
-      Home: { selectedMonth: string };
-    };
-    type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
-    const navigation = useNavigation<NavigationProp>();
-  
-  // const [exercises, setExercises] = useState<Exercise[]>([]); // 初期化
+  // ナビゲーションの型を定義
+  type RootStackParamList = {
+    Home: { selectedMonth: string };
+  };
+  type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+  const navigation = useNavigation<NavigationProp>();
   const [summarizedExercises, setSummarizedExercises] = useState<summarizedExercises[]>([]);
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const isFirstRender = useRef(true);
@@ -137,7 +135,7 @@ const DonutChart = ({ selectedDateProp } : DonutChartProps) =>{
       <FlatList
         data={ summarizedExercises }
         renderItem={({ item }) => (
-          <ExerciseItem id={''} name={ getCategoryLabel(item.category) } duration={item.duration} color={item.color ? item.color : ''} />
+          <ExerciseItem id={''} name={ getCategoryLabel(item.category) } duration={item.duration} color={item.color ? item.color : 'noData'} />
         )}
         keyExtractor={(item) => `${item.category}`}
       />

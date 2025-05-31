@@ -1,7 +1,7 @@
 export interface Exercise {
   id: string;
   name: string;
-  category: number;
+  category: string;
   duration: number;
   color: string;
   exercisedDate: string;

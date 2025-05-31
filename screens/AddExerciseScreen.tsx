@@ -102,7 +102,7 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
       />
       <Text style={styles.label}>Exercised Day(変更可能)
       </Text>
-        {/* 日付表示用のテキスト */}
+      {/* 日付表示用のテキスト */}
       <TouchableOpacity onPress={() => setCalendarVisible(true)}>
         <Text style={styles.dateText}>
           { formatDate(new Date(selectedDate)) }

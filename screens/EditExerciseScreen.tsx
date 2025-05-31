@@ -12,7 +12,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型を<any>として宣言している
   const [exerciseName, setExerciseName] = useState('');
   const [duration, setDuration] = useState<number>(0);
-  const [selectedCategory, setSelectedCategory] = useState<number>(0);
+  const [selectedCategory, setSelectedCategory] = useState('');
   // 日付入力用
   const [selectedDate, setSelectedDate] = useState(''); // 今日の日付をデフォルトに設定
   const [isCalendarVisible, setCalendarVisible] = useState(false);
@@ -50,9 +50,9 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
         item.id === route.params?.state
           ? { ...item, 
             name: exerciseName,
-            category: selectedCategory,
+            category: parseInt(selectedCategory, 10),
             duration: duration,
-            color: CategoryRecords.find((cat) => parseInt(cat.value, 10) === selectedCategory)?.['graphColor'],
+            color: CategoryRecords.find((cat) => parseInt(cat.value, 10) == parseInt(selectedCategory, 10))?.['graphColor'],
             exercisedDate: selectedDate,
           } // ここで更新するデータをセット
           : item
@@ -62,7 +62,7 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
       // 入力欄をリセット
       setExerciseName('');
       setDuration(0);
-      setSelectedCategory(0);
+      setSelectedCategory('');
       // 型を適用した上でnavigation.navigateに引数を渡す
       navigation.navigate('Home', { 
         state: selectedDate,
@@ -92,7 +92,7 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
             // 入力欄をリセット
             setExerciseName('');
             setDuration(0);
-            setSelectedCategory(0);
+            setSelectedCategory('');
             // エクサイズIDを引数として渡す
             navigation.navigate('Home', { state: deletedExercises['exercisedDate'], updatedAt: new Date().toISOString() });
           },
