@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Button } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 import styles from '../styles/donutStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -11,10 +11,16 @@ import commonStyles from '../styles/commonStyles';
 import dayjs from 'dayjs';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
+import { NavigationProp } from '@react-navigation/native';
 
 type DonutChartProps = {
   selectedDateProp: string; // ← ここを必要に応じて型定義する（例: string や number や オブジェクト）
+  navigation: NavigationProp<any>;
 };
+
+// type Props = {
+//   navigation: NavigationProp<any>;
+// };
 // categoryから対応するlabelを取得する関数（propsがFlatListにて受け取ったカテゴリーID）
 const getCategoryLabel = (category: number): string => {
   // catは、CategoryRecordsの１データのこと。findでcategoryを1行ずつ検索している
@@ -54,13 +60,14 @@ const getExercisesbyYearMonth = async(selectedDateFormatted: string): Promise<su
   }
 };
 
-const DonutChart = ({ selectedDateProp } : DonutChartProps) =>{
+const DonutChart: React.FC<any> = ({ selectedDateProp, navigation } : DonutChartProps) =>{
   // ナビゲーションの型を定義
-  type RootStackParamList = {
-    Home: { selectedMonth: string };
-  };
-  type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
-  const navigation = useNavigation<NavigationProp>();
+  // type RootStackParamList = {
+  //   Home: { selectedMonth: string };
+  // };
+  // type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+  // navigation = useNavigation<NavigationProp>();
+console.log(navigation);
   const [summarizedExercises, setSummarizedExercises] = useState<summarizedExercises[]>([]);
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const isFirstRender = useRef(true);

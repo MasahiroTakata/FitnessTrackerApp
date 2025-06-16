@@ -1,37 +1,37 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { NavigationContainer } from '@react-navigation/native';
+import Foundation from 'react-native-vector-icons/Foundation';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+    // <NavigationContainer>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+        }}>
+          <Tabs.Screen
+            name="index"
+            options={{
+              title: 'カレンダー',
+              tabBarIcon: ({ color, focused }) => (
+                <Foundation name={focused ? 'calendar' : 'calendar'} color={color} size='25' />
+              ),
+            }}
+          />
+          <Tabs.Screen
+            name="graph"
+            options={{
+              title: 'グラフ',
+              tabBarIcon: ({ color, focused }) => (
+                <Foundation name={focused ? 'graph-pie' : 'graph-pie'} color={color} size='25'/>
+              ),
+            }}
+          />
+      </Tabs>
+    // </NavigationContainer>
   );
 }

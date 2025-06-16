@@ -2,25 +2,26 @@ import React from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { NavigationProp } from '@react-navigation/native';
 
 interface ExerciseItemProps {
   id: string;
   name: string;
   duration: number;
   color: string;
+  navigation: NavigationProp<any>;
 }
 
 // デバイスの幅を取得（デバイスを横にした時の幅は取ってくれないっぽい、DimensionsというAPIは。）
 const screenWidth = Dimensions.get('window').width;
 
-const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', duration = '', color = '' }) => {
+const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', duration = '', color = '', navigation }) => {
   // ナビゲーションの型を定義
-  type RootStackParamList = {
-    EditExercise: { state: string };
-  };
-  type NavigationProp = StackNavigationProp<RootStackParamList, 'EditExercise'>;
-  const navigation = useNavigation<NavigationProp>();
-
+  // type RootStackParamList = {
+  //   EditExercise: { state: string };
+  // };
+  // type NavigationProp = StackNavigationProp<RootStackParamList, 'EditExercise'>;
+  // const navigation = useNavigation<NavigationProp>();
   if(color === ''){
     return (
       <TouchableOpacity

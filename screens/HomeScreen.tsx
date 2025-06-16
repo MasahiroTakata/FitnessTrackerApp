@@ -32,13 +32,14 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   Record<string, { selected: boolean; marked: boolean; dotColor: string }>
   >({});
   // ナビゲーションの型を定義
-  type RootStackParamList = {
-    Home: undefined;
-    Graph: { state: string };
-    AddExercise: { state: string };
-  };
-  type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
-  const navigation = useNavigation<NavigationProp>();
+  // type RootStackParamList = {
+  //   Home: undefined;
+  //   Graph: { state: string };
+  //   AddExercise: { state: string };
+  // };
+  // type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+  // const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation();
   const isFirstRender = useRef(true);
   const isFirstRenderChangedMonth = useRef(true);
   const nowYearMonth = today
@@ -260,6 +261,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
                       name={exercise.name}
                       duration={exercise.duration}
                       color={isLast ? 'isLast' : ''}
+                      navigation={navigation}
                     />
                   </View>
                 );
@@ -268,21 +270,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
           );
         }}
       />
-      <TouchableOpacity
-        style={styles.button}
-        accessible={true}
-        onPress={() => navigation.navigate('AddExercise', { state: selectedDate })}
-        accessibilityRole="button">
-        <Text style={styles.buttonText}>Add Exercise</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.button}
-        accessible={true}
-        onPress={() => navigation.navigate('Graph', { state: currentMonth })}
-        accessibilityRole="button">
-        <Text style={styles.buttonText}>Go To Graph
-        </Text>
-      </TouchableOpacity>
     </View>
   );
 };
