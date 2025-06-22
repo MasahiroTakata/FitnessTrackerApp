@@ -67,7 +67,6 @@ const DonutChart: React.FC<any> = ({ selectedDateProp, navigation } : DonutChart
   // };
   // type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
   // navigation = useNavigation<NavigationProp>();
-console.log(navigation);
   const [summarizedExercises, setSummarizedExercises] = useState<summarizedExercises[]>([]);
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const isFirstRender = useRef(true);
@@ -142,7 +141,7 @@ console.log(navigation);
       <FlatList
         data={ summarizedExercises }
         renderItem={({ item }) => (
-          <ExerciseItem id={''} name={ getCategoryLabel(item.category) } duration={item.duration} color={item.color ? item.color : 'noData'} />
+          <ExerciseItem id={''} name={ getCategoryLabel(item.category) } duration={item.duration} color={item.color ? item.color : 'noData'} navigation={navigation} />
         )}
         keyExtractor={(item) => `${item.category}`}
       />

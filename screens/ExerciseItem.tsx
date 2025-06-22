@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-nati
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { NavigationProp } from '@react-navigation/native';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
 interface ExerciseItemProps {
   id: string;
@@ -16,12 +17,6 @@ interface ExerciseItemProps {
 const screenWidth = Dimensions.get('window').width;
 
 const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', duration = '', color = '', navigation }) => {
-  // ナビゲーションの型を定義
-  // type RootStackParamList = {
-  //   EditExercise: { state: string };
-  // };
-  // type NavigationProp = StackNavigationProp<RootStackParamList, 'EditExercise'>;
-  // const navigation = useNavigation<NavigationProp>();
   if(color === ''){
     return (
       <TouchableOpacity

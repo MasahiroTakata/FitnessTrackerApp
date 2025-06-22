@@ -1,13 +1,16 @@
 import { StyleSheet, Dimensions } from 'react-native';
+import { useColorScheme } from 'react-native';
 
 // デバイスの幅を取得（デバイスを横にした時の幅は取ってくれないっぽい、DimensionsというAPIは。）
 const screenWidth = Dimensions.get('window').width;
-
+const colorScheme = useColorScheme();
+const backgroundColor = colorScheme === 'dark' ? '#f5f5f5' : '#f5f5f5';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     padding: 16,
+    backgroundColor: backgroundColor
   },
   title: {
     fontSize: 24,
