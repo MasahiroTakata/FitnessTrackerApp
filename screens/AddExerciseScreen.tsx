@@ -12,16 +12,24 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
   const [exerciseName, setExerciseName] = useState('');
   const [duration, setDuration] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const today = new Date();
+  // 初期日付をシステム日付にする
+  const formatted = today
+    .toLocaleDateString("ja-JP", {
+      year: "numeric",
+      month: "2-digit", // デフォルトは１桁（1月だと1と表示される）、2-digitとすることで２桁としてくれる（１月なら01月）
+      day: "2-digit",
+    })
+    .split("/") // スラッシュ区切りで配列で格納する
+    .join("-"); // 配列に格納された値をハイフンで結合して文字列にする
   // 日付入力用
-  const [selectedDate, setSelectedDate] = useState(route.params?.state); // 今日の日付をデフォルトに設定
+  const [selectedDate, setSelectedDate] = useState(formatted); // 今日の日付をデフォルトに設定
   const [isCalendarVisible, setCalendarVisible] = useState(false);
   // ナビゲーションの型を定義
   type RootStackParamList = {
-    Home: { state: string, updatedAt: string };
-    Graph: undefined;
-    AddExercise: { state: string };
+    index: undefined;
   };
-  type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+  type NavigationProp = StackNavigationProp<RootStackParamList, 'index'>;
   const navigation = useNavigation<NavigationProp>();
 
   const handleAddExercise = async() => {
@@ -44,15 +52,15 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
           newExercise
       ];
       await AsyncStorage.setItem('exercises', JSON.stringify(newExercise2));
+      await AsyncStorage.setItem('updatedAt', new Date().toISOString());
+      await AsyncStorage.setItem('selectedDate', selectedDate);
+      // selectedDateもAsyncStorageに保存する必要あり！！
       // 入力欄をリセット
       setExerciseName('');
       setDuration('');
       setSelectedCategory('');
       // 型を適用した上でnavigation.navigateに引数を渡す
-      navigation.navigate('Home', {
-        state: selectedDate,
-        updatedAt: new Date().toISOString()
-      });
+      navigation.navigate('index', { screen: 'Home' });
     }
   };
   // 日付のフォーマットを調整する関数（例: yyyy-mm-dd）
@@ -134,7 +142,7 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
         accessible={true}
         onPress={handleAddExercise}
         accessibilityRole="button">
-        <Text style={CommonStyles.buttonText}>Add Exercise</Text>
+        <Text style={CommonStyles.buttonText}>保存</Text>
       </TouchableOpacity>
     </ScrollView>
   );

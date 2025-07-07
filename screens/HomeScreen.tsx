@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { View, Text, FlatList } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import ExerciseItem from './ExerciseItem';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../styles/commonStyles';
 import { Exercise } from '@/types/exercise';
 import { Calendar, DateData } from 'react-native-calendars';
-import { StackNavigationProp } from '@react-navigation/stack';
 import dayjs from 'dayjs';
 
 type DateObject = {
@@ -31,14 +30,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   const [markedDateDatas, setMarkedDateDatas] = useState<
   Record<string, { selected: boolean; marked: boolean; dotColor: string }>
   >({});
-  // ナビゲーションの型を定義
-  // type RootStackParamList = {
-  //   Home: undefined;
-  //   Graph: { state: string };
-  //   AddExercise: { state: string };
-  // };
-  // type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
-  // const navigation = useNavigation<NavigationProp>();
   const navigation = useNavigation();
   const isFirstRender = useRef(true);
   const isFirstRenderChangedMonth = useRef(true);
@@ -56,9 +47,30 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   };
   const groupedByDay: typeOfGroupedDay = {};
   const [exercisesByDay, setExercisesByDay] = useState<typeOfGroupedDay> ({});
-
   // FlatListにアクセスするためのref（参照）を作成
   const flatListRef = useRef<FlatList>(null);
+  const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+  const prevUpdatedAt = useRef<string | null>(null); // 前回値を保持
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchUpdatedAt = async () => {
+        try {
+          const value = await AsyncStorage.getItem('updatedAt');
+          // 追加・編集が直前に実施されたか？チェックする
+          if (value !== null && value !== prevUpdatedAt.current) {
+            console.log('updatedAt が更新されました:', value);
+            prevUpdatedAt.current = value;
+            setUpdatedAt(value);
+          }
+        } catch (e) {
+          console.error('AsyncStorage 読み込みエラー:', e);
+        }
+      };
+
+      fetchUpdatedAt();
+    }, [])
+  );
   // 日付が選択された時に呼ばれる関数コンポーネント
   // exercisesByDay: { date: '2025-05-10', exercises: Exercise[] }[]
   const handleDatePress = (selectedDate: string) => {
@@ -87,66 +99,69 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     const loadData = async () => {
       try {
         const savedExercises = await AsyncStorage.getItem('exercises');
-        const parsedExercises : Exercise[]= savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
-        // データが１件も保存されていない場合
-        if(parsedExercises == null){
-          setExercisesByDay({});
-        } else{
-          // filterメソッドを使用してexercisedDateが、今月のデータを取得
-          const nowMonthExercises = parsedExercises.filter(exercise => exercise.exercisedDate.startsWith(yearMonth));
-  
-          nowMonthExercises.forEach((exercise) => {
-            const day = exercise.exercisedDate;
-            // 要素がその日付である配列の存在チェック（なければ、その日付の配列を用意する）
-            if (!groupedByDay[day]) {
-              groupedByDay[day] = [];
-            }
-            // その日付の配列にデータを格納する
-            groupedByDay[day].push(exercise);
-          });
-          // 日付のキーだけ取り出して、降順（新しい順）に並べ替え
-          const sortedDates = Object.keys(groupedByDay).sort((a, b) => (a < b ? 1 : -1));
-          // ソートされた順番で新しいオブジェクトを作る
-          const sortedGroupedByDay: { [date: string]: Exercise[] } = {};
-  
-          sortedDates.forEach((date) => {
-            sortedGroupedByDay[date] = groupedByDay[date];
-          });
-  
-          setExercisesByDay(sortedGroupedByDay);
-          /* カレンダーに印をつける実装 */
-          // エクササイズが記録されている日付のリストを取得する
-          const dateList = parsedExercises.map(item => item.exercisedDate);
-          // Setクラスを使って、dateListの重複を排除している
-          const uniqueDates = new Set(dateList);
-          // uniqueDatesをArray.fromで配列に変換する
-          // reduce関数で、{ 日付: オブジェクト }の形に変換&集積した
-          const markedDates = Array.from(uniqueDates).reduce<Record<string, { selected: boolean; marked: boolean; dotColor: string }>>(
-            (acc, date) => {
-              acc[date as string] = { selected: false, marked: true, dotColor: 'blue' };
-              return acc;
-            },
-            {}
-          );
-  
-          setMarkedDateDatas(markedDates);
+        const selectedDate = await AsyncStorage.getItem('selectedDate');
+        const yearMonth = dayjs(selectedDate).format('YYYY-MM');
+
+        if(yearMonth == currentMonth){
+          const parsedExercises : Exercise[]= savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
+          // データが１件も保存されていない場合
+          if(parsedExercises == null){
+            setExercisesByDay({});
+          } else{
+            // filterメソッドを使用してexercisedDateが、今月のデータを取得
+            const nowMonthExercises = parsedExercises.filter(exercise => exercise.exercisedDate.startsWith(yearMonth));
+
+            nowMonthExercises.forEach((exercise) => {
+              const day = exercise.exercisedDate;
+              // 要素がその日付である配列の存在チェック（なければ、その日付の配列を用意する）
+              if (!groupedByDay[day]) {
+                groupedByDay[day] = [];
+              }
+              // その日付の配列にデータを格納する
+              groupedByDay[day].push(exercise);
+            });
+            // 日付のキーだけ取り出して、降順（新しい順）に並べ替え
+            const sortedDates = Object.keys(groupedByDay).sort((a, b) => (a < b ? 1 : -1));
+            // ソートされた順番で新しいオブジェクトを作る
+            const sortedGroupedByDay: { [date: string]: Exercise[] } = {};
+
+            sortedDates.forEach((date) => {
+              sortedGroupedByDay[date] = groupedByDay[date];
+            });
+
+            setExercisesByDay(sortedGroupedByDay);
+            /* カレンダーに印をつける実装 */
+            // エクササイズが記録されている日付のリストを取得する
+            const dateList = parsedExercises.map(item => item.exercisedDate);
+            // Setクラスを使って、dateListの重複を排除している
+            const uniqueDates = new Set(dateList);
+            // uniqueDatesをArray.fromで配列に変換する
+            // reduce関数で、{ 日付: オブジェクト }の形に変換&集積した
+            const markedDates = Array.from(uniqueDates).reduce<Record<string, { selected: boolean; marked: boolean; dotColor: string }>>(
+              (acc, date) => {
+                acc[date as string] = { selected: false, marked: true, dotColor: 'blue' };
+                return acc;
+              },
+              {}
+            );
+
+            setMarkedDateDatas(markedDates);
+          }
+        }else{
+          setCurrentMonth(yearMonth);
         }
       } catch (error) {
         console.error('Error loading data', error);
       }
     };
-    const yearMonth = dayjs(route.params?.state).format('YYYY-MM');
-    // 比較する
-    if(yearMonth === currentMonth){
-      loadData();
-    } else{
-      setCurrentMonth(yearMonth);
-    }
-  }, [route.params?.updatedAt]);
+
+    loadData();
+  }, [updatedAt]);
 
   // その年月のエクササイズ情報を取得する
   const getSelectedYearMonthDatas = async () => {
     try {
+      console.log('ああああ');
       const savedExercises = await AsyncStorage.getItem('exercises');
       const parsedExercises : Exercise[]= savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
       // データが１件も保存されていない場合
@@ -199,6 +214,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     // try {
     //   // 特定のキーに保存されたデータを削除する
     //   await AsyncStorage.removeItem('exercises');
+    //   await AsyncStorage.removeItem('updatedAt');
     //   console.log('データが削除されました');
     // } catch (error) {
     //   console.log('データ削除エラー:', error);

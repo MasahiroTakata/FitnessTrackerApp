@@ -145,15 +145,6 @@ const DonutChart: React.FC<any> = ({ selectedDateProp, navigation } : DonutChart
         )}
         keyExtractor={(item) => `${item.category}`}
       />
-      <TouchableOpacity
-        style={commonStyles.button}
-        accessible={true}
-        onPress={() => navigation.navigate('Home', { selectedMonth: dayjs(selectedDate).format('YYYY-MM') })}
-        accessibilityRole="button">
-        <Text style={commonStyles.buttonText}>戻る
-        </Text>
-      </TouchableOpacity>
-
     </View>
   );
 };
