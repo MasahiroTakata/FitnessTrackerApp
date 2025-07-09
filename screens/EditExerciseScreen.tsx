@@ -88,12 +88,13 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
             const filteredExercises = parsedExercises.filter(item => item.id !== route.params?.state);
             // 削除対象を除いた、エクササイズを改めてAsyncStorageに保存
             await AsyncStorage.setItem("exercises", JSON.stringify(filteredExercises));
+            await AsyncStorage.setItem('updatedAt', new Date().toISOString());
+            await AsyncStorage.setItem('selectedDate', deletedExercises['exercisedDate']);
             // 入力欄をリセット
             setExerciseName('');
             setDuration(0);
             setSelectedCategory('');
-            // エクサイズIDを引数として渡す
-            navigation.navigate('Home', { state: deletedExercises['exercisedDate'], updatedAt: new Date().toISOString() });
+            navigation.navigate('Home', {});
           },
         },
       ]
