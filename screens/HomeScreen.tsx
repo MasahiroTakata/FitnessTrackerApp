@@ -161,7 +161,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   // その年月のエクササイズ情報を取得する
   const getSelectedYearMonthDatas = async () => {
     try {
-      console.log('ああああ');
       const savedExercises = await AsyncStorage.getItem('exercises');
       const parsedExercises : Exercise[]= savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
       // データが１件も保存されていない場合

@@ -54,7 +54,6 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
       await AsyncStorage.setItem('exercises', JSON.stringify(newExercise2));
       await AsyncStorage.setItem('updatedAt', new Date().toISOString());
       await AsyncStorage.setItem('selectedDate', selectedDate);
-      // selectedDateもAsyncStorageに保存する必要あり！！
       // 入力欄をリセット
       setExerciseName('');
       setDuration('');

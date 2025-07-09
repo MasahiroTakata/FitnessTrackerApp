@@ -18,7 +18,7 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
   const [isCalendarVisible, setCalendarVisible] = useState(false);
   // ナビゲーションの型を定義
   type RootStackParamList = {
-    Home: { state: string, updatedAt: string };
+    Home: {};
     Graph: undefined;
     AddExercise: { state: string };
   };
@@ -59,15 +59,14 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
       );
       // エクササイズ保存
       await AsyncStorage.setItem('exercises', JSON.stringify(updatedExercises));
+      await AsyncStorage.setItem('updatedAt', new Date().toISOString());
+      await AsyncStorage.setItem('selectedDate', selectedDate);
       // 入力欄をリセット
       setExerciseName('');
       setDuration(0);
       setSelectedCategory('');
       // 型を適用した上でnavigation.navigateに引数を渡す
-      navigation.navigate('Home', { 
-        state: selectedDate,
-        updatedAt: new Date().toISOString()
-      });
+      navigation.navigate('Home', {});
     }
   };
   // 削除機能
@@ -180,7 +179,7 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
         accessible={true}
         onPress={handleEditExercise}
         accessibilityRole="button">
-        <Text style={CommonStyles.buttonText}>Edit Exercise</Text>
+        <Text style={CommonStyles.buttonText}>変更</Text>
       </TouchableOpacity>
       {/* 削除ボタン */}
       <TouchableOpacity
@@ -188,7 +187,7 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
         accessible={true}
         onPress={handleDeleteExercise}
         accessibilityRole="button">
-        <Text style={CommonStyles.buttonText}>Delete Exercise</Text>
+        <Text style={CommonStyles.buttonText}>削除</Text>
       </TouchableOpacity>
     </ScrollView>
   );
