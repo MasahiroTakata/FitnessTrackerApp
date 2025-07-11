@@ -5,7 +5,7 @@ import ExerciseItem from './ExerciseItem';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../styles/commonStyles';
 import { Exercise } from '@/types/exercise';
-import { Calendar, DateData } from 'react-native-calendars';
+import { Calendar, DateData, LocaleConfig } from 'react-native-calendars';
 import dayjs from 'dayjs';
 
 type DateObject = {
@@ -15,6 +15,22 @@ type DateObject = {
   year: number;
   timestamp: number;
 };
+
+LocaleConfig.locales['ja'] = {
+  monthNames: [
+    '1月', '2月', '3月', '4月', '5月', '6月',
+    '7月', '8月', '9月', '10月', '11月', '12月'
+  ],
+  monthNamesShort: [
+    '1月', '2月', '3月', '4月', '5月', '6月',
+    '7月', '8月', '9月', '10月', '11月', '12月'
+  ],
+  dayNames: ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'],
+  dayNamesShort: ['日', '月', '火', '水', '木', '金', '土'],
+  today: '今日'
+};
+
+LocaleConfig.defaultLocale = 'ja';
 
 const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネントの引数（props）として、自動的に提供される
   const today = new Date();
@@ -239,6 +255,14 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     <View style={styles.container}>
       <Text style={styles.title}>Fitness Tracker</Text>
       <Calendar
+        renderHeader={(date: string) => {
+          const formatted = dayjs(date).format('YYYY年 M月');
+          return (
+            <Text style={{ fontSize: 16, fontWeight: 'bold', padding: 10 }}>
+              {formatted}
+            </Text>
+          );
+        }}
         key={currentMonth + '-01'}
         current={currentMonth + '-01'}
         // 日付が選択された時のコールバック
