@@ -66,17 +66,14 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   // FlatListにアクセスするためのref（参照）を作成
   const flatListRef = useRef<FlatList>(null);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
-  const prevUpdatedAt = useRef<string | null>(null); // 前回値を保持
 
   useFocusEffect(
     useCallback(() => {
       const fetchUpdatedAt = async () => {
         try {
           const value = await AsyncStorage.getItem('updatedAt');
-          // 追加・編集が直前に実施されたか？チェックする
-          if (value !== null && value !== prevUpdatedAt.current) {
-            console.log('updatedAt が更新されました:', value);
-            prevUpdatedAt.current = value;
+
+          if (value !== null) {
             setUpdatedAt(value);
           }
         } catch (e) {
@@ -117,6 +114,8 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
         const savedExercises = await AsyncStorage.getItem('exercises');
         const selectedDate = await AsyncStorage.getItem('selectedDate');
         const yearMonth = dayjs(selectedDate).format('YYYY-MM');
+
+        await AsyncStorage.removeItem('updatedAt');
 
         if(yearMonth == currentMonth){
           const parsedExercises : Exercise[]= savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
