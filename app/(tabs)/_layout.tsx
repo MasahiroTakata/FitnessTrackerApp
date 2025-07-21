@@ -26,6 +26,14 @@ export default function TabLayout() {
               <Foundation name={focused ? 'calendar' : 'calendar'} color={color} size='25' />
             ),
           }}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              // ここでイベント発火
+              // navigation.navigate('index', { reload: Date.now() });
+              navigation.setParams({ reload: Date.now() });
+
+            },
+          })}
         />
         <Tabs.Screen
           name="addExercise"

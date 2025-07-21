@@ -7,6 +7,7 @@ import styles from '../styles/commonStyles';
 import { Exercise } from '@/types/exercise';
 import { Calendar, DateData, LocaleConfig } from 'react-native-calendars';
 import dayjs from 'dayjs';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 
 type DateObject = {
   dateString: string;
@@ -49,6 +50,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   const navigation = useNavigation();
   const isFirstRender = useRef(true);
   const isFirstRenderChangedMonth = useRef(true);
+  const isFirstRenderSelectedYearMonth = useRef(true);
   const nowYearMonth = today
   .toLocaleDateString("ja-JP", {
     year: "numeric",
@@ -66,15 +68,41 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   // FlatListにアクセスするためのref（参照）を作成
   const flatListRef = useRef<FlatList>(null);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+  const params = useLocalSearchParams();
+
+  useEffect(() => {
+    if (params.reload) {
+      console.log("タブが押された時のリロード処理");
+      const nowYearMonth = today
+        .toLocaleDateString("ja-JP", {
+        year: "numeric",
+        month: "2-digit", // デフォルトは１桁（1月だと1と表示される）、2-digitとすることで２桁としてくれる（１月なら01月）
+      })
+      .split("/") // スラッシュ区切りで配列で格納する
+      .join("-"); // 配列に格納された値をハイフンで結合して文字列にする
+
+      if(currentMonth === nowYearMonth){
+        getSelectedYearMonthDatas();
+      } else{
+        setCurrentMonth(nowYearMonth);
+      }
+    }
+  }, [params.reload]);
 
   useFocusEffect(
     useCallback(() => {
       const fetchUpdatedAt = async () => {
+        console.log("ああああ");
         try {
           const value = await AsyncStorage.getItem('updatedAt');
 
           if (value !== null) {
+            console.log('value入っている');
             setUpdatedAt(value);
+          } else{
+            console.log('現在年月' + currentMonth);
+            setCurrentMonth(currentMonth);
+            // getSelectedYearMonthDatas();
           }
         } catch (e) {
           console.error('AsyncStorage 読み込みエラー:', e);
@@ -84,6 +112,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
       fetchUpdatedAt();
     }, [])
   );
+
   // 日付が選択された時に呼ばれる関数コンポーネント
   // exercisesByDay: { date: '2025-05-10', exercises: Exercise[] }[]
   const handleDatePress = (selectedDate: string) => {
@@ -95,11 +124,11 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     }
   };
 
-  useEffect(() => {
-    if (route.params?.selectedMonth) {
-      setCurrentMonth(route.params.selectedMonth);
-    }
-  }, [route.params?.selectedMonth]);
+  // useEffect(() => { // 今は使われていないかも？？
+  //   if (route.params?.selectedMonth) {
+  //     setCurrentMonth(route.params.selectedMonth);
+  //   }
+  // }, [route.params?.selectedMonth]);
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -116,6 +145,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
         const yearMonth = dayjs(selectedDate).format('YYYY-MM');
 
         await AsyncStorage.removeItem('updatedAt');
+        await AsyncStorage.removeItem('selectedDate');
 
         if(yearMonth == currentMonth){
           const parsedExercises : Exercise[]= savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
@@ -175,6 +205,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
 
   // その年月のエクササイズ情報を取得する
   const getSelectedYearMonthDatas = async () => {
+    console.log("いいいい");
     try {
       const savedExercises = await AsyncStorage.getItem('exercises');
       const parsedExercises : Exercise[]= savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
@@ -184,6 +215,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
       } else{
         // filterメソッドを使用してexercisedDateが、今月のデータを取得
         const nowMonthExercises = parsedExercises.filter(exercise => exercise.exercisedDate.startsWith(currentMonth));
+        const groupedByDay: typeOfGroupedDay = {};
 
         nowMonthExercises.forEach((exercise) => {
           const day = exercise.exercisedDate;
@@ -203,6 +235,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
           sortedGroupedByDay[date] = groupedByDay[date];
         });
 
+console.log("sortedGroupedByDay", sortedGroupedByDay);
         setExercisesByDay(sortedGroupedByDay);
         /* カレンダーに印をつける実装 */
         // エクササイズが記録されている日付のリストを取得する
@@ -236,6 +269,13 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   };
 
   useEffect(() => { // 日付変更と初期表示時に呼び出す
+    // if (isFirstRenderSelectedYearMonth.current) {
+    //   // 初回レンダー時は実行せず、フラグを false にする
+    //   isFirstRenderSelectedYearMonth.current = false;
+
+    //   return;
+    // }
+
     getSelectedYearMonthDatas();
   }, [selectedDate]);
 
@@ -243,9 +283,10 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     if (isFirstRenderChangedMonth.current) {
       // 初回レンダー時は実行せず、フラグを false にする
       isFirstRenderChangedMonth.current = false;
-
+      console.log("年月変更時：if");
       return;
     } else{
+      console.log("年月変更時：else");
       getSelectedYearMonthDatas();
     }
   }, [currentMonth]);
