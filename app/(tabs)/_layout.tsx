@@ -29,9 +29,7 @@ export default function TabLayout() {
           listeners={({ navigation }) => ({
             tabPress: (e) => {
               // ここでイベント発火
-              // navigation.navigate('index', { reload: Date.now() });
-              navigation.setParams({ reload: Date.now() });
-
+              navigation.navigate('index', { reload: Date.now() });
             },
           })}
         />

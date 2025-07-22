@@ -7,7 +7,7 @@ import styles from '../styles/commonStyles';
 import { Exercise } from '@/types/exercise';
 import { Calendar, DateData, LocaleConfig } from 'react-native-calendars';
 import dayjs from 'dayjs';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 
 type DateObject = {
   dateString: string;
@@ -50,7 +50,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   const navigation = useNavigation();
   const isFirstRender = useRef(true);
   const isFirstRenderChangedMonth = useRef(true);
-  const isFirstRenderSelectedYearMonth = useRef(true);
   const nowYearMonth = today
   .toLocaleDateString("ja-JP", {
     year: "numeric",
@@ -69,7 +68,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   const flatListRef = useRef<FlatList>(null);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const params = useLocalSearchParams();
-
+  // カレンダーボタンを押下した時の処理（同じタブを連続押下した場合も対応できる）
   useEffect(() => {
     if (params.reload) {
       console.log("タブが押された時のリロード処理");
@@ -88,7 +87,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
       }
     }
   }, [params.reload]);
-
+  // HomeScreenの画面を、違う画面から表示する際に呼び出す処理
   useFocusEffect(
     useCallback(() => {
       const fetchUpdatedAt = async () => {
@@ -102,7 +101,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
           } else{
             console.log('現在年月' + currentMonth);
             setCurrentMonth(currentMonth);
-            // getSelectedYearMonthDatas();
           }
         } catch (e) {
           console.error('AsyncStorage 読み込みエラー:', e);
@@ -124,12 +122,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     }
   };
 
-  // useEffect(() => { // 今は使われていないかも？？
-  //   if (route.params?.selectedMonth) {
-  //     setCurrentMonth(route.params.selectedMonth);
-  //   }
-  // }, [route.params?.selectedMonth]);
-
   useEffect(() => {
     if (isFirstRender.current) {
       // 初回レンダー時は実行せず、フラグを false にする
@@ -139,6 +131,8 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     }
 
     const loadData = async () => {
+      console.log("updatedAtが変わった時に呼ばれる");
+
       try {
         const savedExercises = await AsyncStorage.getItem('exercises');
         const selectedDate = await AsyncStorage.getItem('selectedDate');
@@ -269,13 +263,7 @@ console.log("sortedGroupedByDay", sortedGroupedByDay);
   };
 
   useEffect(() => { // 日付変更と初期表示時に呼び出す
-    // if (isFirstRenderSelectedYearMonth.current) {
-    //   // 初回レンダー時は実行せず、フラグを false にする
-    //   isFirstRenderSelectedYearMonth.current = false;
-
-    //   return;
-    // }
-
+    console.log("selectedDateが変わった時に呼ばれる");
     getSelectedYearMonthDatas();
   }, [selectedDate]);
 
