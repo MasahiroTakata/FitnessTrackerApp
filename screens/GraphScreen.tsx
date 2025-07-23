@@ -1,22 +1,21 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text } from 'react-native';
 import DonutChart from './DonutChart';
 import { useNavigation } from '@react-navigation/native';
 import styles from '../styles/commonStyles';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { NavigationProp } from '@react-navigation/native';
+
+// type DonutChartProps = {
+//   selectedDateProp: string; // ← ここを必要に応じて型定義する（例: string や number や オブジェクト）
+//   navigation: NavigationProp<any>;
+// };
 
 const GraphScreen: React.FC<any> = (state) => {
-  // ナビゲーションの型を定義
-  type RootStackParamList = {
-    Home: undefined;
-  };
-  type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
-  const navigation = useNavigation<NavigationProp>();
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>エクササイズ割合</Text>
-      <DonutChart selectedDateProp={state.route?.params.state}/>
+      <DonutChart selectedDateProp={state.route?.params.state} navigation={useNavigation}/>
     </View>
   );
 };
