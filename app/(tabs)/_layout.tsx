@@ -41,20 +41,6 @@ export default function TabLayout() {
               <Foundation name={focused ? 'page-edit' : 'page-edit'} color={color} size='25'/>
             ),
           }}
-          // listeners={({ navigation }) => ({
-          //   tabPress: (e) => {
-          //     // デフォルトの動作をキャンセル
-          //     e.preventDefault();
-          //     // 現在日付を取得
-          //     const now = new Date();
-          //     const formatted = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-          //     console.log(formatted);
-          //     // 手動で navigate（state に現在日付を渡す）
-          //     navigation.navigate('addExercise', {
-          //       state: { selectedDate: formatted },
-          //     });
-          //   },
-          // })}
         />
         <Tabs.Screen
           name="graph"

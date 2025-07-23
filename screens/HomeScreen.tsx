@@ -71,7 +71,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   // カレンダーボタンを押下した時の処理（同じタブを連続押下した場合も対応できる）
   useEffect(() => {
     if (params.reload) {
-      console.log("タブが押された時のリロード処理");
       const nowYearMonth = today
         .toLocaleDateString("ja-JP", {
         year: "numeric",
@@ -91,15 +90,12 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   useFocusEffect(
     useCallback(() => {
       const fetchUpdatedAt = async () => {
-        console.log("ああああ");
         try {
           const value = await AsyncStorage.getItem('updatedAt');
 
           if (value !== null) {
-            console.log('value入っている');
             setUpdatedAt(value);
           } else{
-            console.log('現在年月' + currentMonth);
             setCurrentMonth(currentMonth);
           }
         } catch (e) {
@@ -131,8 +127,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     }
 
     const loadData = async () => {
-      console.log("updatedAtが変わった時に呼ばれる");
-
       try {
         const savedExercises = await AsyncStorage.getItem('exercises');
         const selectedDate = await AsyncStorage.getItem('selectedDate');
@@ -199,7 +193,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
 
   // その年月のエクササイズ情報を取得する
   const getSelectedYearMonthDatas = async () => {
-    console.log("いいいい");
     try {
       const savedExercises = await AsyncStorage.getItem('exercises');
       const parsedExercises : Exercise[]= savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
@@ -229,7 +222,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
           sortedGroupedByDay[date] = groupedByDay[date];
         });
 
-console.log("sortedGroupedByDay", sortedGroupedByDay);
         setExercisesByDay(sortedGroupedByDay);
         /* カレンダーに印をつける実装 */
         // エクササイズが記録されている日付のリストを取得する
@@ -263,7 +255,6 @@ console.log("sortedGroupedByDay", sortedGroupedByDay);
   };
 
   useEffect(() => { // 日付変更と初期表示時に呼び出す
-    console.log("selectedDateが変わった時に呼ばれる");
     getSelectedYearMonthDatas();
   }, [selectedDate]);
 
@@ -271,10 +262,9 @@ console.log("sortedGroupedByDay", sortedGroupedByDay);
     if (isFirstRenderChangedMonth.current) {
       // 初回レンダー時は実行せず、フラグを false にする
       isFirstRenderChangedMonth.current = false;
-      console.log("年月変更時：if");
+
       return;
     } else{
-      console.log("年月変更時：else");
       getSelectedYearMonthDatas();
     }
   }, [currentMonth]);
