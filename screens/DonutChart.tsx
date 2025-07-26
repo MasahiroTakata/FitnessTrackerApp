@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { PieChart } from 'react-native-chart-kit';
 import styles from '../styles/donutStyles';
@@ -7,11 +7,10 @@ import ExerciseItem from './ExerciseItem';
 import { CategoryRecords } from '@/constants/CategoryRecords'
 import { Exercise } from '@/types/exercise';
 import { summarizedExercises } from '@/types/summarizedExercises';
-import commonStyles from '../styles/commonStyles';
 import dayjs from 'dayjs';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { NavigationProp } from '@react-navigation/native';
+import { useLocalSearchParams } from 'expo-router';
 
 type DonutChartProps = {
   selectedDateProp: string; // ← ここを必要に応じて型定義する（例: string や number や オブジェクト）
@@ -70,6 +69,7 @@ const DonutChart: React.FC<any> = ({ selectedDateProp, navigation } : DonutChart
   const [summarizedExercises, setSummarizedExercises] = useState<summarizedExercises[]>([]);
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const isFirstRender = useRef(true);
+  const params = useLocalSearchParams();
 
   const handlePrevMonth = () => {
     setSelectedDate((prev) => prev.subtract(1, "month"));
@@ -77,14 +77,28 @@ const DonutChart: React.FC<any> = ({ selectedDateProp, navigation } : DonutChart
   const handleNextMonth = () => {
     setSelectedDate((prev) => prev.add(1, "month"));
   };
-  // 初期表示時に呼ばれる
+  // GraphScreenの画面を、違う画面から表示する際に呼び出す処理（初期表示でも使用）
+  useFocusEffect(
+    useCallback(() => {
+      const fetchUpdatedAt = async () => {
+        const formattedDate = dayjs(selectedDateProp).format('YYYY-MM');
+        console.log('formattedDate:', formattedDate);
+        setSelectedDate(dayjs(formattedDate));
+      };
+
+      fetchUpdatedAt();
+    }, [])
+  );
+
+  // グラフボタンを押下した時の処理（同じタブを連続押下した場合も対応できる）
   useEffect(() => {
-    const fetchData = async () => {
-      const formattedDate = dayjs(selectedDateProp).format('YYYY-MM');
-      setSelectedDate(dayjs(formattedDate));
-    };
-    fetchData();
-  }, []);
+    if (params.reload) {
+        const formattedDate = dayjs(selectedDateProp).format('YYYY-MM');
+        console.log('同じタブ：formattedDate:', formattedDate);
+        setSelectedDate(dayjs(formattedDate));
+    }
+  }, [params.reload]);
+  
   // 年月が変更された時に呼び出すuseEffect関数
   useEffect(() => {
     const getSelectedYearMonth = async () => {
