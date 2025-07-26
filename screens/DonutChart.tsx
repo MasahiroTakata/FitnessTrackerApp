@@ -82,7 +82,6 @@ const DonutChart: React.FC<any> = ({ selectedDateProp, navigation } : DonutChart
     useCallback(() => {
       const fetchUpdatedAt = async () => {
         const formattedDate = dayjs(selectedDateProp).format('YYYY-MM');
-        console.log('formattedDate:', formattedDate);
         setSelectedDate(dayjs(formattedDate));
       };
 
@@ -94,7 +93,6 @@ const DonutChart: React.FC<any> = ({ selectedDateProp, navigation } : DonutChart
   useEffect(() => {
     if (params.reload) {
         const formattedDate = dayjs(selectedDateProp).format('YYYY-MM');
-        console.log('同じタブ：formattedDate:', formattedDate);
         setSelectedDate(dayjs(formattedDate));
     }
   }, [params.reload]);
