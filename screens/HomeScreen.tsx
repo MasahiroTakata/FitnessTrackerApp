@@ -8,6 +8,7 @@ import { Exercise } from '@/types/exercise';
 import { Calendar, DateData, LocaleConfig } from 'react-native-calendars';
 import dayjs from 'dayjs';
 import { useLocalSearchParams } from 'expo-router';
+import { useThemeStore } from '../stores/themeStore';
 
 type DateObject = {
   dateString: string;
@@ -68,6 +69,8 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   const flatListRef = useRef<FlatList>(null);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const params = useLocalSearchParams();
+  const { themeColor, setThemeColor } = useThemeStore();
+
   // カレンダーボタンを押下した時の処理（同じタブを連続押下した場合も対応できる）
   useEffect(() => {
     if (params.reload) {
@@ -80,8 +83,10 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
       .join("-"); // 配列に格納された値をハイフンで結合して文字列にする
 
       if(currentMonth === nowYearMonth){
+        console.log('現在の月と選択された月が一致しました。データを取得します。');
         getSelectedYearMonthDatas();
       } else{
+        console.log('現在の月と選択された月が一致しません。currentMonthを更新します。');
         setCurrentMonth(nowYearMonth);
       }
     }
@@ -92,11 +97,18 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
       const fetchUpdatedAt = async () => {
         try {
           const value = await AsyncStorage.getItem('updatedAt');
-
           if (value !== null) {
+            console.log('AsyncStorageから取得したupdatedAt:', value);
             setUpdatedAt(value);
           } else{
-            setCurrentMonth(currentMonth);
+            console.log('AsyncStorageにupdatedAtが存在しません。');
+            const savedColor = await AsyncStorage.getItem('themeColor');
+            if (savedColor) {
+              console.log(`themeStoreから取得した保存されたテーマカラー: ${savedColor}`);
+              setThemeColor(savedColor);
+            } else {
+              console.log('themeStoreに保存されたテーマカラーが存在しません。');
+            }
           }
         } catch (e) {
           console.error('AsyncStorage 読み込みエラー:', e);
@@ -106,7 +118,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
       fetchUpdatedAt();
     }, [])
   );
-
   // 日付が選択された時に呼ばれる関数コンポーネント
   // exercisesByDay: { date: '2025-05-10', exercises: Exercise[] }[]
   const handleDatePress = (selectedDate: string) => {
@@ -172,7 +183,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
             // reduce関数で、{ 日付: オブジェクト }の形に変換&集積した
             const markedDates = Array.from(uniqueDates).reduce<Record<string, { selected: boolean; marked: boolean; dotColor: string }>>(
               (acc, date) => {
-                acc[date as string] = { selected: false, marked: true, dotColor: 'blue' };
+                acc[date as string] = { selected: false, marked: true, dotColor: themeColor };
                 return acc;
               },
               {}
@@ -193,6 +204,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
 
   // その年月のエクササイズ情報を取得する
   const getSelectedYearMonthDatas = async () => {
+    console.log('getSelectedYearMonthDatasが呼び出されました。現在の年月:', currentMonth);
     try {
       const savedExercises = await AsyncStorage.getItem('exercises');
       const parsedExercises : Exercise[]= savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
@@ -232,7 +244,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
         // reduce関数で、{ 日付: オブジェクト }の形に変換&集積した
         const markedDates = Array.from(uniqueDates).reduce<Record<string, { selected: boolean; marked: boolean; dotColor: string }>>(
           (acc, date) => {
-            acc[date as string] = { selected: false, marked: true, dotColor: 'blue' };
+            acc[date as string] = { selected: false, marked: true, dotColor: themeColor };
             return acc;
           },
           {}
@@ -265,14 +277,43 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
 
       return;
     } else{
+      console.log('年月が変更されました:', currentMonth);
       getSelectedYearMonthDatas();
     }
   }, [currentMonth]);
+
+  // テーマカラーが変更された時に、カレンダーを再描画するための処理
+  useEffect(() => {
+    if (isFirstRender.current) {
+      // 初回レンダー時は実行せず、フラグを false にする
+      isFirstRender.current = false;
+
+      return;
+    } else{
+      console.log('テーマカラーが変更されました:', themeColor);
+      getSelectedYearMonthDatas();
+    }
+  }, [themeColor]);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Fitness Tracker</Text>
       <Calendar
+        key={`${currentMonth}-01-${themeColor}`} // themeColor or 画面リロードで再描画
+        theme={{
+          backgroundColor: '#ffffff', // カレンダー全体の背景色
+          calendarBackground: '#ffffff', // カレンダーの背景色
+          textSectionTitleColor: '#b6c1cd', // 月・曜日のタイトル色
+          selectedDayBackgroundColor: themeColor, // 選択された日付の背景色
+          selectedDayTextColor: '#ffffff', // 選択された日付のテキスト色
+          todayTextColor: themeColor, // 今日の日付のテキスト色
+          dayTextColor: '#2d4150', // 通常の日付のテキスト色
+          textDisabledColor: '#d9e1e8', // 無効な日付のテキスト色
+          selectedDotColor: '#ffffff', // 選択されたドットの色
+          arrowColor: themeColor, // 月移動矢印の色
+          monthTextColor: themeColor, // 月のテキスト色
+          indicatorColor: themeColor, // インジケーターの色
+        }}
         renderHeader={(date: string) => {
           const formatted = dayjs(date).format('YYYY年 M月');
           return (
@@ -281,7 +322,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
             </Text>
           );
         }}
-        key={currentMonth + '-01'}
         current={currentMonth + '-01'}
         // 日付が選択された時のコールバック
         onDayPress={(day : DateData) => {
@@ -292,7 +332,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
         // 選択された日付のスタイル変更
         markedDates={{
           ...markedDateDatas, // スプレッド演算子でオブジェクトの中身を展開している
-          [selectedDate]: { selected: true, marked: true, selectedColor: 'blue' },
+          [selectedDate]: { selected: true, marked: true },
         }}
         onMonthChange={(month: DateObject) => {
           const formattedMonth = `${month.year}-${String(month.month).padStart(2, '0')}`;
