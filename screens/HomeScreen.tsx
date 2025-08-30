@@ -320,7 +320,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
 
       return;
     } else{
-      console.log('年月が変更されました:', currentMonth);
       getSelectedYearMonthDatas();
     }
   }, [currentMonth]);
@@ -333,7 +332,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
 
       return;
     } else{
-      console.log('テーマカラーが変更されました:', themeColor);
       getSelectedYearMonthDatas();
     }
   }, [themeColor]);
@@ -408,6 +406,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
                     <ExerciseItem
                       id={exercise.id}
                       name={exercise.name}
+                      category={exercise.category}
                       duration={exercise.duration}
                       color={isLast ? 'isLast' : ''}
                       navigation={navigation}
