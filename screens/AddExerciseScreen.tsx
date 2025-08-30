@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -7,8 +7,9 @@ import RNPickerSelect from 'react-native-picker-select';
 import { CategoryRecords } from '@/constants/CategoryRecords'
 import { Calendar, DateData } from "react-native-calendars";
 import { StackNavigationProp } from '@react-navigation/stack';
+import { useThemeStore } from '../stores/themeStore';
 
-const AddExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型を<any>として宣言している
+const AddExerciseScreen: React.FC<any> = ({ route }) => {
   const [exerciseName, setExerciseName] = useState('');
   const [duration, setDuration] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -31,6 +32,26 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
   };
   type NavigationProp = StackNavigationProp<RootStackParamList, 'index'>;
   const navigation = useNavigation<NavigationProp>();
+  const { themeColor } = useThemeStore();
+
+  // 追加: HomeScreenと同様のナビヘッダを設定（中央に「入力」ラベル）
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: true,
+      headerTitle: () => (
+        <Text style={{ fontSize: 16, fontWeight: '700', color: '#fff' }}>
+          入力
+        </Text>
+      ),
+      headerTitleAlign: 'center',
+      headerStyle: {
+        backgroundColor: themeColor,
+        elevation: 0,
+        shadowOpacity: 0,
+      },
+      headerTintColor: '#fff',
+    });
+  }, [navigation, themeColor]);
 
   const handleAddExercise = async() => {
     if (exerciseName.trim()) {
@@ -124,11 +145,18 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
               current={selectedDate || undefined}
               onDayPress={(day : DateData) => onDateSelect(day.dateString)} // 日付選択時のコールバック
               markedDates={{
-                [selectedDate]: { selected: true, selectedColor: "blue" }, // 選択中の日付を強調表示
+                [selectedDate]: { selected: true, selectedColor: themeColor }, // 選択中の日付をテーマカラーで強調
+              }}
+              theme={{
+                selectedDayBackgroundColor: themeColor,
+                selectedDayTextColor: '#ffffff',
+                todayTextColor: themeColor,
+                arrowColor: themeColor,
+                monthTextColor: themeColor,
               }}
             />
             <TouchableOpacity
-              style={styles.closeButton}
+              style={[styles.closeButton, { backgroundColor: themeColor }]}
               onPress={() => setCalendarVisible(false)}
             >
               <Text style={styles.closeButtonText}>閉じる</Text>
@@ -137,7 +165,7 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
         </View>
       </Modal>
       <TouchableOpacity
-        style={styles.button}
+        style={[styles.button, { backgroundColor: themeColor }]}
         accessible={true}
         onPress={handleAddExercise}
         accessibilityRole="button">
@@ -161,7 +189,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   button: {
-    backgroundColor: '#007BFF',
     padding: 10,
     borderRadius: 5,
   },
@@ -191,7 +218,6 @@ const styles = StyleSheet.create({
   closeButton: {
     marginTop: 10,
     padding: 10,
-    backgroundColor: "blue",
     borderRadius: 5,
     alignItems: "center",
   },
