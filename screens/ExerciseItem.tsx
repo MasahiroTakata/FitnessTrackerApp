@@ -32,7 +32,7 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', categor
             {getCategoryLabel(category)}
             {name ? `（${name}）` : null}
           </Text>
-          <Text style={styles.duration}>{duration} mins</Text>
+          <Text style={styles.duration}>{duration} 分</Text>
         </View>
       </TouchableOpacity>
     );
@@ -47,7 +47,7 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', categor
             {getCategoryLabel(category)}
             {name ? `（${name}）` : null}
           </Text>
-          <Text style={styles.duration}>{duration} mins</Text>
+          <Text style={styles.duration}>{duration} 分</Text>
         </View>
       </TouchableOpacity>
     );
@@ -57,7 +57,7 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', categor
         <View style={[styles.circle, { backgroundColor: color }]}></View>
         <View style={styles.exerciseList}>
           <Text style={styles.name}>{category}</Text>
-          <Text style={styles.duration}>{duration} mins</Text>
+          <Text style={styles.duration}>{duration} 分</Text>
         </View>
       </View>
     );
