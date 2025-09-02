@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, FlatList } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import ExerciseItem from './ExerciseItem';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -8,6 +8,8 @@ import { Exercise } from '@/types/exercise';
 import { Calendar, DateData, LocaleConfig } from 'react-native-calendars';
 import dayjs from 'dayjs';
 import { useLocalSearchParams } from 'expo-router';
+import { useThemeStore } from '../stores/themeStore';
+import { useLayoutEffect } from 'react';
 
 type DateObject = {
   dateString: string;
@@ -34,6 +36,7 @@ LocaleConfig.locales['ja'] = {
 LocaleConfig.defaultLocale = 'ja';
 
 const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネントの引数（props）として、自動的に提供される
+  const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
   const today = new Date();
   const formatted = today
     .toLocaleDateString("ja-JP", {
@@ -68,6 +71,8 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   const flatListRef = useRef<FlatList>(null);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const params = useLocalSearchParams();
+  const { themeColor, setThemeColor } = useThemeStore();
+
   // カレンダーボタンを押下した時の処理（同じタブを連続押下した場合も対応できる）
   useEffect(() => {
     if (params.reload) {
@@ -80,8 +85,10 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
       .join("-"); // 配列に格納された値をハイフンで結合して文字列にする
 
       if(currentMonth === nowYearMonth){
+        console.log('現在の月と選択された月が一致しました。データを取得します。');
         getSelectedYearMonthDatas();
       } else{
+        console.log('現在の月と選択された月が一致しません。currentMonthを更新します。');
         setCurrentMonth(nowYearMonth);
       }
     }
@@ -92,11 +99,18 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
       const fetchUpdatedAt = async () => {
         try {
           const value = await AsyncStorage.getItem('updatedAt');
-
           if (value !== null) {
+            console.log('AsyncStorageから取得したupdatedAt:', value);
             setUpdatedAt(value);
           } else{
-            setCurrentMonth(currentMonth);
+            console.log('AsyncStorageにupdatedAtが存在しません。');
+            const savedColor = await AsyncStorage.getItem('themeColor');
+            if (savedColor) {
+              console.log(`themeStoreから取得した保存されたテーマカラー: ${savedColor}`);
+              setThemeColor(savedColor);
+            } else {
+              console.log('themeStoreに保存されたテーマカラーが存在しません。');
+            }
           }
         } catch (e) {
           console.error('AsyncStorage 読み込みエラー:', e);
@@ -106,7 +120,47 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
       fetchUpdatedAt();
     }, [])
   );
-
+  // ナビヘッダをカレンダーの年月で上書きする（元々用意していたヘッダーは表示しない）
+  useLayoutEffect(() => {
+    const title = dayjs(currentMonth + '-01').format('YYYY年 M月');
+    navigation.setOptions({
+      headerShown: true, // 親で非表示にしている場合は true にする
+      headerTitle: () => (
+        <Text style={{ fontSize: 16, fontWeight: '700', color: '#fff' }}>
+          {title}
+        </Text>
+      ),
+      headerTitleAlign: 'center',
+      headerStyle: {
+        backgroundColor: themeColor, // ヘッダー背景にテーマカラーを反映（任意）
+        elevation: 0,
+        shadowOpacity: 0,
+      },
+      headerTintColor: '#fff',
+      headerLeft: () => (
+        <TouchableOpacity
+          onPress={() => {
+            const prev = dayjs(currentMonth + '-01').subtract(1, 'month').format('YYYY-MM');
+            setCurrentMonth(prev);
+          }}
+          style={{ paddingHorizontal: 50 }}
+        >
+          <Text style={{ color: '#fff', fontSize: 25 }}>{'‹'}</Text>
+        </TouchableOpacity>
+      ),
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => {
+            const next = dayjs(currentMonth + '-01').add(1, 'month').format('YYYY-MM');
+            setCurrentMonth(next);
+          }}
+          style={{ paddingHorizontal: 50 }}
+        >
+          <Text style={{ color: '#fff', fontSize: 25 }}>{'›'}</Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, currentMonth, themeColor]);
   // 日付が選択された時に呼ばれる関数コンポーネント
   // exercisesByDay: { date: '2025-05-10', exercises: Exercise[] }[]
   const handleDatePress = (selectedDate: string) => {
@@ -172,7 +226,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
             // reduce関数で、{ 日付: オブジェクト }の形に変換&集積した
             const markedDates = Array.from(uniqueDates).reduce<Record<string, { selected: boolean; marked: boolean; dotColor: string }>>(
               (acc, date) => {
-                acc[date as string] = { selected: false, marked: true, dotColor: 'blue' };
+                acc[date as string] = { selected: false, marked: true, dotColor: themeColor };
                 return acc;
               },
               {}
@@ -193,6 +247,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
 
   // その年月のエクササイズ情報を取得する
   const getSelectedYearMonthDatas = async () => {
+    console.log('getSelectedYearMonthDatasが呼び出されました。現在の年月:', currentMonth);
     try {
       const savedExercises = await AsyncStorage.getItem('exercises');
       const parsedExercises : Exercise[]= savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
@@ -232,7 +287,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
         // reduce関数で、{ 日付: オブジェクト }の形に変換&集積した
         const markedDates = Array.from(uniqueDates).reduce<Record<string, { selected: boolean; marked: boolean; dotColor: string }>>(
           (acc, date) => {
-            acc[date as string] = { selected: false, marked: true, dotColor: 'blue' };
+            acc[date as string] = { selected: false, marked: true, dotColor: themeColor };
             return acc;
           },
           {}
@@ -269,19 +324,54 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     }
   }, [currentMonth]);
 
+  // テーマカラーが変更された時に、カレンダーを再描画するための処理
+  useEffect(() => {
+    if (isFirstRender.current) {
+      // 初回レンダー時は実行せず、フラグを false にする
+      isFirstRender.current = false;
+
+      return;
+    } else{
+      getSelectedYearMonthDatas();
+    }
+  }, [themeColor]);
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Fitness Tracker</Text>
+      {/* カスタム曜日ラベル */}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 8 }}>
+        {weekDays.map((day, index) => (
+          <Text
+            key={index}
+            style={{
+              fontWeight: 'bold',
+              color: index === 0 ? 'red' : index === 6 ? 'blue' : '#2d4150',
+            }}
+          >
+            {day}
+          </Text>
+        ))}
+      </View>
       <Calendar
-        renderHeader={(date: string) => {
-          const formatted = dayjs(date).format('YYYY年 M月');
-          return (
-            <Text style={{ fontSize: 16, fontWeight: 'bold', padding: 10 }}>
-              {formatted}
-            </Text>
-          );
+        key={`${currentMonth}-01-${themeColor}`} // themeColor or 画面リロードで再描画（keyの内容が変わると、Calendarを再描画する仕組み）
+        hideDayNames={true} // デフォルトの曜日ラベルを非表示
+        // Calendar内部のヘッダーを使わない（ナビヘッダで表示するため）
+        renderHeader={() => <View style={{ height: 0 }} />}
+        // カレンダー内の左右矢印も非表示にする（ナビヘッダ側で矢印を表示しているため）
+        hideArrows={true}
+        theme={{
+          calendarBackground: '#ffffff', // カレンダーの背景色
+          selectedDayBackgroundColor: themeColor, // 選択された日付の背景色
+          selectedDayTextColor: '#ffffff', // 選択された日付のテキスト色
+          todayTextColor: themeColor, // 今日の日付のテキスト色
+          dayTextColor: '#2d4150', // 通常の日付のテキスト色
+          textDisabledColor: '#d9e1e8', // 無効な日付のテキスト色
+          selectedDotColor: '#ffffff', // 選択されたドットの色
+          indicatorColor: themeColor, // インジケーターの色
+          monthTextColor: '#fff',     // ヘッダーのテキスト（白文字）
+          arrowColor: '#fff',         // 矢印の色（白）
+          textSectionTitleColor: '#333', // 曜日部分は黒 or 調整
         }}
-        key={currentMonth + '-01'}
         current={currentMonth + '-01'}
         // 日付が選択された時のコールバック
         onDayPress={(day : DateData) => {
@@ -292,7 +382,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
         // 選択された日付のスタイル変更
         markedDates={{
           ...markedDateDatas, // スプレッド演算子でオブジェクトの中身を展開している
-          [selectedDate]: { selected: true, marked: true, selectedColor: 'blue' },
+          [selectedDate]: { selected: true, marked: true },
         }}
         onMonthChange={(month: DateObject) => {
           const formattedMonth = `${month.year}-${String(month.month).padStart(2, '0')}`;
@@ -306,7 +396,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
           const [date, exercises] = item;
           return (
             <View>
-              <Text style={styles.daysText}>{String(date)}</Text>
+              <Text style={[styles.daysText, { backgroundColor: themeColor }]}>{String(date)}</Text>
 
               {exercises.map((exercise: Exercise, index: number) => {
                 const isLast = index === exercises.length - 1;
@@ -316,6 +406,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
                     <ExerciseItem
                       id={exercise.id}
                       name={exercise.name}
+                      category={exercise.category}
                       duration={exercise.duration}
                       color={isLast ? 'isLast' : ''}
                       navigation={navigation}

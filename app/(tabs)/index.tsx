@@ -5,6 +5,7 @@ import HomeScreen from '../../screens/HomeScreen';
 import AddExerciseScreen from '../../screens/AddExerciseScreen';
 import GraphScreen from '../../screens/GraphScreen';
 import EditExerciseScreen from '../../screens/EditExerciseScreen';
+import SettingScreen from '../../screens/SettingScreen';
 import { StatusBar } from 'react-native';
 
 const Stack = createStackNavigator();
@@ -32,6 +33,7 @@ export default function App() {
         <Stack.Screen name="AddExercise" component={AddExerciseScreen} />
         <Stack.Screen name="Graph" component={GraphScreen} />
         <Stack.Screen name="EditExercise" component={EditExerciseScreen} />
+        <Stack.Screen name="Setting" component={SettingScreen} />
       </Stack.Navigator>
     </>
   );
