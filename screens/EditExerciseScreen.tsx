@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useLayoutEffect, useEffect, useRef } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -8,14 +8,19 @@ import { Exercise } from '@/types/exercise';
 import { CategoryRecords } from '@/constants/CategoryRecords'
 import { Calendar, DateData } from 'react-native-calendars';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { useThemeStore } from '../stores/themeStore';
+import dayjs from 'dayjs';
 
 const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型を<any>として宣言している
   const [exerciseName, setExerciseName] = useState('');
   const [duration, setDuration] = useState<number>(0);
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<number>(0);
   // 日付入力用
   const [selectedDate, setSelectedDate] = useState(''); // 今日の日付をデフォルトに設定
   const [isCalendarVisible, setCalendarVisible] = useState(false);
+  // バリデーション用モーダル
+  const [isValidationModalVisible, setValidationModalVisible] = useState(false);
+  const [validationMessage, setValidationMessage] = useState('');
   // ナビゲーションの型を定義
   type RootStackParamList = {
     Home: {};
@@ -41,18 +46,53 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
     setSelectedCategory(filteredExercises['category']);
     setSelectedDate(filteredExercises['exercisedDate']);
   };
+  const { themeColor } = useThemeStore();
+  // 追加: HomeScreenと同様のナビヘッダを設定（中央に「入力」ラベル）
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: true,
+      headerTitle: () => (
+        <Text style={{ fontSize: 16, fontWeight: '700', color: '#fff' }}>
+          編集
+        </Text>
+      ),
+      headerTitleAlign: 'center',
+      headerStyle: {
+        backgroundColor: themeColor,
+        elevation: 0,
+        shadowOpacity: 0,
+      },
+      headerTintColor: '#fff',
+      // 左のデフォルト戻るボタン（矢印 + タイトル）を消す
+      headerLeft: () => null,
+    });
+  }, [navigation, themeColor]);
+  
   // 編集したエクササイズをホーム画面に渡す
   const handleEditExercise = async() => {
-    if (exerciseName.trim()) {
+    // 必須バリデーション: カテゴリと時間は必須（エクササイズ名は任意）
+    if (!selectedCategory) {
+      setValidationMessage('エクササイズカテゴリを選択してください。');
+      setValidationModalVisible(true);
+      return;
+    }
+
+    if (!duration || isNaN(duration) || duration <= 0) {
+      setValidationMessage('エクササイズした時間（分）を正しく入力してください。');
+      setValidationModalVisible(true);
+      return;
+    }
+
+    if (true) {
       const savedExercises = await AsyncStorage.getItem('exercises');
       const parsedExercises : Exercise[] = savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
       const updatedExercises = parsedExercises.map(item =>
         item.id === route.params?.state
           ? { ...item, 
             name: exerciseName,
-            category: parseInt(selectedCategory, 10),
+            category: selectedCategory,
             duration: duration,
-            color: CategoryRecords.find((cat) => parseInt(cat.value, 10) == parseInt(selectedCategory, 10))?.['graphColor'],
+            color: CategoryRecords.find((cat) => cat.value === selectedCategory)?.['graphColor'],
             exercisedDate: selectedDate,
           } // ここで更新するデータをセット
           : item
@@ -64,7 +104,7 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
       // 入力欄をリセット
       setExerciseName('');
       setDuration(0);
-      setSelectedCategory('');
+      setSelectedCategory(0);
       // 型を適用した上でnavigation.navigateに引数を渡す
       navigation.navigate('Home', {});
     }
@@ -93,7 +133,7 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
             // 入力欄をリセット
             setExerciseName('');
             setDuration(0);
-            setSelectedCategory('');
+            setSelectedCategory(0);
             navigation.navigate('Home', {});
           },
         },
@@ -112,46 +152,63 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
     setSelectedDate(date);
     setCalendarVisible(false); // カレンダーを閉じる
   };
+  // Pickerのrefを作成して、全体をタップ可能にする
+  const pickerRef = useRef<any>(null);
 
   return (
     <ScrollView contentContainerStyle={CommonStyles.container} scrollEnabled={true}>
-      <Text style={styles.label}>Exercise Name</Text>
-      <TextInput
-        style={styles.input}
-        value={exerciseName}
-        onChangeText={setExerciseName}
-        placeholder="Enter excercise name"
-        placeholderTextColor="gray"
-      />
-
-      <Text style={styles.label}>Select Exercise Category</Text>
-      <RNPickerSelect
-        onValueChange={(value) => {
-          setSelectedCategory(value);
-        }}
-        items={CategoryRecords}
-        placeholder={{ label: 'Select an option...', value: "", color: "#000" }}
-        style={pickerSelectStyles}
-        value={selectedCategory} // 現在選択されている値
-        Icon={() => (<Text style={{ position: 'absolute', right: 15, top: 10, fontSize: 18, color: '#789' }}>▼</Text>)}
-      />
-
-      <Text style={styles.label}>Duration (minutes)</Text>
+      <Text style={styles.label}>エクササイズカテゴリを選択</Text>
+      {/* Picker 全体をタップ可能にするために ref でトグル操作するラッパー */}
+      <View style={{ position: 'relative' }}>
+        <RNPickerSelect
+          ref={pickerRef}
+          onValueChange={(value) => {
+            setSelectedCategory(value);
+          }}
+          items={CategoryRecords}
+          placeholder={{ label: 'カテゴリーを選択してください', value: "", color: "#000" }}
+          style={{
+            ...pickerSelectStyles,
+            iconContainer: { right: 10, top: 12 },
+            inputIOS: { ...pickerSelectStyles.inputIOS, paddingRight: 40 },
+            inputAndroid: { ...pickerSelectStyles.inputAndroid, paddingRight: 40 },
+          }}
+          useNativeAndroidPickerStyle={false}
+          value={selectedCategory}
+          Icon={() => (<Text style={{ fontSize: 18, color: '#789' }}>▼</Text>)}
+        />
+        {/* 透明なオーバーレイで領域全体をキャッチする */}
+        <TouchableOpacity
+          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+          activeOpacity={1}
+          onPress={() => pickerRef.current?.togglePicker?.()}
+        />
+      </View>
+      <Text style={styles.label}>エクササイズした時間（分）</Text>
       <TextInput
         style={styles.input}
         value={duration.toString()}
         onChangeText={(text) => setDuration(Number(text))}
         keyboardType="numeric"
-        placeholder="Enter duration name(numeric only)"
+        placeholder="例: 30"
         placeholderTextColor="gray"
       />
-      <Text style={styles.label}>Exercised Day(変更可能)
-      </Text>
-        {/* 日付表示用のテキスト */}
-      <TouchableOpacity onPress={() => setCalendarVisible(true)}>
-        <Text style={styles.dateText}>
-          { formatDate(new Date(selectedDate)) }
-        </Text>
+      <Text style={styles.label}>エクササイズ日付</Text>
+      {/* 日付表示用のテキスト（右端にカレンダーアイコンを表示） */}
+      <TouchableOpacity
+        onPress={() => setCalendarVisible(true)}
+        activeOpacity={0.8}
+        style={styles.dateTouchable}
+        accessibilityRole="button"
+        accessibilityLabel="日付を変更する"
+      >
+        <View style={styles.dateRow}>
+          <Text style={[styles.dateText, { flex: 1 }]}>
+            {formatDate(new Date(selectedDate))}
+          </Text>
+          {/* シンプルに絵文字でアイコン表示。必要なら vector-icon に置き換えてください */}
+          <Text style={styles.calendarIcon}>📅</Text>
+        </View>
       </TouchableOpacity>
       {/* モーダルにカレンダーを表示 */}
       <Modal visible={isCalendarVisible} transparent={true} animationType="slide">
@@ -162,11 +219,24 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
               current={selectedDate || undefined}
               onDayPress={(day : DateData) => onDateSelect(day.dateString)} // 日付選択時のコールバック
               markedDates={{
-                [selectedDate]: { selected: true, selectedColor: "blue" }, // 選択中の日付を強調表示
+                [selectedDate]: { selected: true, selectedColor: themeColor }, // 選択中の日付を強調表示
+              }}
+              // 見出しを yyyy年mm月 (例: 2025年09月) 形式で表示
+              renderHeader={(date?: Date) => (
+                <Text style={{ textAlign: 'center', fontSize: 16, marginBottom: 8 }}>
+                  {dayjs(date).format('YYYY年MM月')}
+                </Text>
+              )}
+              theme={{
+                selectedDayBackgroundColor: themeColor,
+                selectedDayTextColor: '#ffffff',
+                todayTextColor: themeColor,
+                arrowColor: themeColor,
+                monthTextColor: '#000000',
               }}
             />
             <TouchableOpacity
-              style={styles.closeButton}
+              style={[styles.closeButton, { backgroundColor: themeColor }]}
               onPress={() => setCalendarVisible(false)}
             >
               <Text style={styles.closeButtonText}>閉じる</Text>
@@ -174,9 +244,17 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
           </View>
         </View>
       </Modal>
+      <Text style={styles.label}>エクササイズ名（任意）</Text>
+      <TextInput
+        style={styles.input}
+        value={exerciseName}
+        onChangeText={setExerciseName}
+        placeholder="エクササイズ名を入力"
+        placeholderTextColor="gray"
+      />
       {/* 編集ボタン */}
       <TouchableOpacity
-        style={styles.button}
+        style={[styles.button, { backgroundColor: themeColor }]}
         accessible={true}
         onPress={handleEditExercise}
         accessibilityRole="button">
@@ -184,12 +262,26 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
       </TouchableOpacity>
       {/* 削除ボタン */}
       <TouchableOpacity
-        style={styles.button}
+        style={[styles.button, { backgroundColor: themeColor }]}
         accessible={true}
         onPress={handleDeleteExercise}
         accessibilityRole="button">
         <Text style={CommonStyles.buttonText}>削除</Text>
       </TouchableOpacity>
+      {/* バリデーションエラーモーダル */}
+      <Modal visible={isValidationModalVisible} transparent={true} animationType="fade">
+        <View style={styles.modalContainer}>
+          <View style={[styles.calendarContainer, { width: '80%', alignItems: 'center' }]}>
+            <Text style={{ fontSize: 16, marginBottom: 16, textAlign: 'center' }}>{validationMessage}</Text>
+            <TouchableOpacity
+              style={[styles.closeButton, { backgroundColor: themeColor, width: '100%' }]}
+              onPress={() => setValidationModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>閉じる</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
@@ -208,7 +300,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   button: {
-    backgroundColor: '#007BFF',
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
@@ -223,6 +314,19 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "#f0f0f0",
     borderRadius: 5,
+  },
+  dateTouchable: {
+    marginBottom: 16,
+  },
+  dateRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+  },
+  calendarIcon: {
+    fontSize: 20,
+    color: "#555",
+    marginLeft: 8,
   },
   modalContainer: {
     flex: 1,

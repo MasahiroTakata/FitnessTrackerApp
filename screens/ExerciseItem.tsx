@@ -16,7 +16,7 @@ interface ExerciseItemProps {
 const screenWidth = Dimensions.get('window').width;
 const getCategoryLabel = (category: number): string => {
   // catは、CategoryRecordsの１データのこと。findでcategoryを1行ずつ検索している
-  const foundCategory = CategoryRecords.find((cat) => parseInt(cat.value, 10) === category);
+  const foundCategory = CategoryRecords.find((cat) => cat.value === category);
   return foundCategory ? foundCategory.label : "不明"; // 該当するカテゴリーがなければ「不明」
 };
 

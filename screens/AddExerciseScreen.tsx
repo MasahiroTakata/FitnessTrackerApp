@@ -82,7 +82,7 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
         name: exerciseName,
         category: parseInt(selectedCategory, 10),
         duration: parsedDuration,
-        color: CategoryRecords.find((cat) => parseInt(cat.value, 10) === parseInt(selectedCategory, 10))?.['graphColor'],
+        color: CategoryRecords.find((cat) => cat.value === parseInt(selectedCategory, 10))?.['graphColor'],
         exercisedDate: selectedDate,
       };
       // 元々登録されているデータに、今回の新規データを追加した配列を用意する
@@ -109,7 +109,7 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
     return `${year}/${month}/${day}`;
   };
   // 日付を選択したときの処理
-  const onDateSelect = (date: String) => {
+  const onDateSelect = (date: string) => {
     setSelectedDate(date);
     setCalendarVisible(false); // カレンダーを閉じる
   };
@@ -154,8 +154,7 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
         placeholder="例: 30"
         placeholderTextColor="gray"
       />
-      <Text style={styles.label}>エクササイズ日付
-      </Text>
+      <Text style={styles.label}>エクササイズ日付</Text>
       {/* 日付表示用のテキスト（右端にカレンダーアイコンを表示） */}
       <TouchableOpacity
         onPress={() => setCalendarVisible(true)}
