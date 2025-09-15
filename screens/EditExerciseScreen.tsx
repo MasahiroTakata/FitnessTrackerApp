@@ -21,6 +21,8 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
   // バリデーション用モーダル
   const [isValidationModalVisible, setValidationModalVisible] = useState(false);
   const [validationMessage, setValidationMessage] = useState('');
+  // 編集成功モーダル
+  const [isSuccessModalVisible, setSuccessModalVisible] = useState(false);
   // ナビゲーションの型を定義
   type RootStackParamList = {
     Home: {};
@@ -101,12 +103,13 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
       await AsyncStorage.setItem('exercises', JSON.stringify(updatedExercises));
       await AsyncStorage.setItem('updatedAt', new Date().toISOString());
       await AsyncStorage.setItem('selectedDate', selectedDate);
-      // 入力欄をリセット
-      setExerciseName('');
-      setDuration(0);
-      setSelectedCategory(0);
-      // 型を適用した上でnavigation.navigateに引数を渡す
-      navigation.navigate('Home', {});
+      // 入力欄をセット
+      setExerciseName(exerciseName);
+      setDuration(duration);
+      setSelectedCategory(selectedCategory);
+      setSelectedDate(selectedDate);
+      // 編集完了のモーダルを表示（閉じるで Home に戻る）
+      setSuccessModalVisible(true);
     }
   };
   // 削除機能
@@ -276,6 +279,22 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
             <TouchableOpacity
               style={[styles.closeButton, { backgroundColor: themeColor, width: '100%' }]}
               onPress={() => setValidationModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>閉じる</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      {/* 編集成功モーダル */}
+      <Modal visible={isSuccessModalVisible} transparent={true} animationType="fade">
+        <View style={styles.modalContainer}>
+          <View style={[styles.calendarContainer, { width: '80%', alignItems: 'center' }]}>
+            <Text style={{ fontSize: 16, marginBottom: 16, textAlign: 'center' }}>編集しました。</Text>
+            <TouchableOpacity
+              style={[styles.closeButton, { backgroundColor: themeColor, width: '100%' }]}
+              onPress={() => {
+                setSuccessModalVisible(false);
+              }}
             >
               <Text style={styles.closeButtonText}>閉じる</Text>
             </TouchableOpacity>

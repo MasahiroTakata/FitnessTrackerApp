@@ -53,6 +53,8 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   const navigation = useNavigation();
   const isFirstRender = useRef(true);
   const isFirstRenderChangedMonth = useRef(true);
+  // カレンダーアイコンをタップした時、useFocusEffectも呼ばれないようにするためのフラグ
+  const isCalendarIconTapped = useRef(true);
   const nowYearMonth = today
   .toLocaleDateString("ja-JP", {
     year: "numeric",
@@ -72,45 +74,70 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const params = useLocalSearchParams();
   const { themeColor, setThemeColor } = useThemeStore();
-
   // カレンダーボタンを押下した時の処理（同じタブを連続押下した場合も対応できる）
   useEffect(() => {
-    if (params.reload) {
-      const nowYearMonth = today
-        .toLocaleDateString("ja-JP", {
-        year: "numeric",
-        month: "2-digit", // デフォルトは１桁（1月だと1と表示される）、2-digitとすることで２桁としてくれる（１月なら01月）
-      })
-      .split("/") // スラッシュ区切りで配列で格納する
-      .join("-"); // 配列に格納された値をハイフンで結合して文字列にする
+    const paramsReload = async () => {
+      if (params.reload) {
+        isCalendarIconTapped.current = true;
+        const nowYearMonth = today
+          .toLocaleDateString("ja-JP", {
+          year: "numeric",
+          month: "2-digit", // デフォルトは１桁（1月だと1と表示される）、2-digitとすることで２桁としてくれる（１月なら01月）
+        })
+        .split("/") // スラッシュ区切りで配列で格納する
+        .join("-"); // 配列に格納された値をハイフンで結合して文字列にする
+        try{
+          const selectedMonthRaw = await AsyncStorage.getItem('selectedMonth');
+          const selectedMonth = selectedMonthRaw ? JSON.parse(selectedMonthRaw) : null;
 
-      if(currentMonth === nowYearMonth){
-        console.log('現在の月と選択された月が一致しました。データを取得します。');
-        getSelectedYearMonthDatas();
-      } else{
-        console.log('現在の月と選択された月が一致しません。currentMonthを更新します。');
-        setCurrentMonth(nowYearMonth);
+          if (selectedMonth) {
+            if (selectedMonth === nowYearMonth) {
+              getSelectedYearMonthDatas();
+            } else {
+              setCurrentMonth(nowYearMonth);
+            }
+          } else {
+            getSelectedYearMonthDatas();
+          }
+        } catch (e) {
+          console.error('AsyncStorage 読み込みエラー:', e);
+        }
       }
     }
+    paramsReload();
   }, [params.reload]);
   // HomeScreenの画面を、違う画面から表示する際に呼び出す処理
   useFocusEffect(
     useCallback(() => {
       const fetchUpdatedAt = async () => {
+        if (isCalendarIconTapped.current) {
+          // カレンダーアイコンが押下された場合は、処理をスキップしてフラグをリセット
+          isCalendarIconTapped.current = false;
+          return;
+        }
+
         try {
-          const value = await AsyncStorage.getItem('updatedAt');
-          if (value !== null) {
-            console.log('AsyncStorageから取得したupdatedAt:', value);
-            setUpdatedAt(value);
-          } else{
-            console.log('AsyncStorageにupdatedAtが存在しません。');
-            const savedColor = await AsyncStorage.getItem('themeColor');
-            if (savedColor) {
-              console.log(`themeStoreから取得した保存されたテーマカラー: ${savedColor}`);
-              setThemeColor(savedColor);
+          const nowYearMonth = today
+            .toLocaleDateString("ja-JP", {
+            year: "numeric",
+            month: "2-digit", // デフォルトは１桁（1月だと1と表示される）、2-digitとすることで２桁としてくれる（１月なら01月）
+          })
+          .split("/") // スラッシュ区切りで配列で格納する
+          .join("-"); // 配列に格納された値をハイフンで結合して文字列にする
+
+          const selectedMonthRaw = await AsyncStorage.getItem('selectedMonth');
+          // AsyncStorage に保存するときに JSON.stringify しているため、取得値は "2025-09" のようにクォート付きの文字列になっていることがある
+          // JSON.parse で元の文字列（クォートなし）に戻す（null チェック含む）
+          const selectedMonth = selectedMonthRaw ? JSON.parse(selectedMonthRaw) : null;
+
+          if (selectedMonth) {
+            if (selectedMonth === nowYearMonth) {
+              getSelectedYearMonthDatas();
             } else {
-              console.log('themeStoreに保存されたテーマカラーが存在しません。');
+              setCurrentMonth(nowYearMonth);
             }
+          } else {
+            getSelectedYearMonthDatas();
           }
         } catch (e) {
           console.error('AsyncStorage 読み込みエラー:', e);
@@ -247,7 +274,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
 
   // その年月のエクササイズ情報を取得する
   const getSelectedYearMonthDatas = async () => {
-    console.log('getSelectedYearMonthDatasが呼び出されました。現在の年月:', currentMonth);
+    await AsyncStorage.setItem('selectedMonth', JSON.stringify(currentMonth));
     try {
       const savedExercises = await AsyncStorage.getItem('exercises');
       const parsedExercises : Exercise[]= savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
