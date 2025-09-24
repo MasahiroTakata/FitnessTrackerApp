@@ -10,6 +10,7 @@ import { Calendar, DateData } from 'react-native-calendars';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useThemeStore } from '../stores/themeStore';
 import dayjs from 'dayjs';
+import { reload } from 'expo-router/build/global-state/routing';
 
 const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型を<any>として宣言している
   const [exerciseName, setExerciseName] = useState('');
@@ -23,6 +24,8 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
   const [validationMessage, setValidationMessage] = useState('');
   // 編集成功モーダル
   const [isSuccessModalVisible, setSuccessModalVisible] = useState(false);
+  // 削除成功モーダル
+  const [isDeleteSuccessModalVisible, setDeleteSuccessModalVisible] = useState(false);
   // ナビゲーションの型を定義
   type RootStackParamList = {
     Home: {};
@@ -101,14 +104,14 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
       );
       // エクササイズ保存
       await AsyncStorage.setItem('exercises', JSON.stringify(updatedExercises));
-      await AsyncStorage.setItem('updatedAt', new Date().toISOString());
-      await AsyncStorage.setItem('selectedDate', selectedDate);
+      // await AsyncStorage.setItem('updatedAt', new Date().toISOString());
+      // await AsyncStorage.setItem('selectedDate', selectedDate);
       // 入力欄をセット
       setExerciseName(exerciseName);
       setDuration(duration);
       setSelectedCategory(selectedCategory);
       setSelectedDate(selectedDate);
-      // 編集完了のモーダルを表示（閉じるで Home に戻る）
+      // 編集完了のモーダルを表示
       setSuccessModalVisible(true);
     }
   };
@@ -127,17 +130,20 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
           onPress: async () => {
             const savedExercises = await AsyncStorage.getItem('exercises');
             const parsedExercises : Exercise[] = savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
-            const deletedExercises = parsedExercises.filter(item => item.id === route.params?.state)[0];
             const filteredExercises = parsedExercises.filter(item => item.id !== route.params?.state);
+            const nowFullDate = new Date()
+              .toLocaleDateString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit" })
+              .split("/")
+              .join("-"); // 例: 2025-09-20
+            await AsyncStorage.setItem('selectedDate', nowFullDate);
             // 削除対象を除いた、エクササイズを改めてAsyncStorageに保存
             await AsyncStorage.setItem("exercises", JSON.stringify(filteredExercises));
-            await AsyncStorage.setItem('updatedAt', new Date().toISOString());
-            await AsyncStorage.setItem('selectedDate', deletedExercises['exercisedDate']);
             // 入力欄をリセット
             setExerciseName('');
             setDuration(0);
             setSelectedCategory(0);
-            navigation.navigate('Home', {});
+            // 削除完了モーダルを表示（閉じるで Home に移動）
+            setDeleteSuccessModalVisible(true);
           },
         },
       ]
@@ -294,6 +300,25 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
               style={[styles.closeButton, { backgroundColor: themeColor, width: '100%' }]}
               onPress={() => {
                 setSuccessModalVisible(false);
+              }}
+            >
+              <Text style={styles.closeButtonText}>閉じる</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      {/* 削除成功モーダル */}
+      <Modal visible={isDeleteSuccessModalVisible} transparent={true} animationType="fade">
+        <View style={styles.modalContainer}>
+          <View style={[styles.calendarContainer, { width: '80%', alignItems: 'center' }]}>
+            <Text style={{ fontSize: 16, marginBottom: 16, textAlign: 'center' }}>削除しました。</Text>
+            <TouchableOpacity
+              style={[styles.closeButton, { backgroundColor: themeColor, width: '100%' }]}
+              onPress={() => {
+                setDeleteSuccessModalVisible(false);
+                // Home を上書きで表示し、params.reload=true を渡して確実に再読み込みさせる
+                navigation.replace('Home', { reload: true });
+                // navigation.replace('Home', { reload: false });
               }}
             >
               <Text style={styles.closeButtonText}>閉じる</Text>
