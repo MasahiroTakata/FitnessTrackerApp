@@ -112,6 +112,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     useCallback(() => {
       const fetchUpdatedAt = async () => {
         if (isCalendarIconTapped.current) {
+          console.log('カレンダーアイコンが押下されたため、処理をスキップ');
           // カレンダーアイコンが押下された場合は、処理をスキップしてフラグをリセット
           isCalendarIconTapped.current = false;
           return;

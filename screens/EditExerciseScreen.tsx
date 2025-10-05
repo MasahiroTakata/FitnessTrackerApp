@@ -316,9 +316,11 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
               style={[styles.closeButton, { backgroundColor: themeColor, width: '100%' }]}
               onPress={() => {
                 setDeleteSuccessModalVisible(false);
-                // Home を上書きで表示し、params.reload=true を渡して確実に再読み込みさせる
-                navigation.replace('Home', { reload: true });
-                // navigation.replace('Home', { reload: false });
+                // navigation.reset でナビゲーションスタックをクリアして Home に戻す（確実に再マウントされる）
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: 'Home', params: { reload: true } }],
+                });
               }}
             >
               <Text style={styles.closeButtonText}>閉じる</Text>
