@@ -17,6 +17,8 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
   // バリデーション用モーダル
   const [isValidationModalVisible, setValidationModalVisible] = useState(false);
   const [validationMessage, setValidationMessage] = useState('');
+  // 保存成功モーダル
+  const [isSuccessModalVisible, setSuccessModalVisible] = useState(false);
   const today = new Date();
   // 初期日付をシステム日付にする
   const formatted = today
@@ -82,7 +84,7 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
         name: exerciseName,
         category: parseInt(selectedCategory, 10),
         duration: parsedDuration,
-        color: CategoryRecords.find((cat) => parseInt(cat.value, 10) === parseInt(selectedCategory, 10))?.['graphColor'],
+        color: CategoryRecords.find((cat) => cat.value === parseInt(selectedCategory, 10))?.['graphColor'],
         exercisedDate: selectedDate,
       };
       // 元々登録されているデータに、今回の新規データを追加した配列を用意する
@@ -91,14 +93,14 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
           newExercise
       ];
       await AsyncStorage.setItem('exercises', JSON.stringify(newExercise2));
-      await AsyncStorage.setItem('updatedAt', new Date().toISOString());
-      await AsyncStorage.setItem('selectedDate', selectedDate);
+      // await AsyncStorage.setItem('updatedAt', new Date().toISOString());
+      // await AsyncStorage.setItem('selectedDate', selectedDate);
       // 入力欄をリセット
       setExerciseName('');
       setDuration('');
       setSelectedCategory('');
-      // 型を適用した上でnavigation.navigateに引数を渡す
-      navigation.navigate('index', { screen: 'Home' });
+      // 保存完了モーダルを表示（閉じるで Home に戻る）
+      setSuccessModalVisible(true);
     }
   };
   // 日付のフォーマットを調整する関数（例: yyyy-mm-dd）
@@ -109,7 +111,7 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
     return `${year}/${month}/${day}`;
   };
   // 日付を選択したときの処理
-  const onDateSelect = (date: String) => {
+  const onDateSelect = (date: string) => {
     setSelectedDate(date);
     setCalendarVisible(false); // カレンダーを閉じる
   };
@@ -154,8 +156,7 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
         placeholder="例: 30"
         placeholderTextColor="gray"
       />
-      <Text style={styles.label}>エクササイズ日付
-      </Text>
+      <Text style={styles.label}>エクササイズ日付</Text>
       {/* 日付表示用のテキスト（右端にカレンダーアイコンを表示） */}
       <TouchableOpacity
         onPress={() => setCalendarVisible(true)}
@@ -229,6 +230,23 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
             <TouchableOpacity
               style={[styles.closeButton, { backgroundColor: themeColor, width: '100%' }]}
               onPress={() => setValidationModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>閉じる</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* 保存成功モーダル */}
+      <Modal visible={isSuccessModalVisible} transparent={true} animationType="fade">
+        <View style={styles.modalContainer}>
+          <View style={[styles.calendarContainer, { width: '80%', alignItems: 'center' }]}>
+            <Text style={{ fontSize: 16, marginBottom: 16, textAlign: 'center' }}>保存しました。</Text>
+            <TouchableOpacity
+              style={[styles.closeButton, { backgroundColor: themeColor, width: '100%' }]}
+              onPress={() => {
+                setSuccessModalVisible(false);
+              }}
             >
               <Text style={styles.closeButtonText}>閉じる</Text>
             </TouchableOpacity>
