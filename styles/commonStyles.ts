@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
   },
   daysText: {
     textAlign: 'left',
-    backgroundColor: 'gray',
+    // backgroundColor: 'gray',
     color: 'white',
     padding: 2,
   },

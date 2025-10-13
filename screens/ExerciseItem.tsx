@@ -1,13 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
 import { NavigationProp } from '@react-navigation/native';
-import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { CategoryRecords } from '@/constants/CategoryRecords'
 
 interface ExerciseItemProps {
   id: string;
   name: string;
+  category: number;
   duration: number;
   color: string;
   navigation: NavigationProp<any>;
@@ -15,8 +14,13 @@ interface ExerciseItemProps {
 
 // デバイスの幅を取得（デバイスを横にした時の幅は取ってくれないっぽい、DimensionsというAPIは。）
 const screenWidth = Dimensions.get('window').width;
+const getCategoryLabel = (category: number): string => {
+  // catは、CategoryRecordsの１データのこと。findでcategoryを1行ずつ検索している
+  const foundCategory = CategoryRecords.find((cat) => cat.value === category);
+  return foundCategory ? foundCategory.label : "不明"; // 該当するカテゴリーがなければ「不明」
+};
 
-const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', duration = '', color = '', navigation }) => {
+const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', category = 0, duration = 0, color = '', navigation }) => {
   if(color === ''){
     return (
       <TouchableOpacity
@@ -24,8 +28,11 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', duratio
         onPress={() => navigation.navigate('EditExercise', { state: id })}
       >
         <View style={styles.exerciseList}>
-          <Text style={styles.name}>{name}</Text>
-          <Text style={styles.duration}>{duration} mins</Text>
+          <Text style={styles.name}>
+            {getCategoryLabel(category)}
+            {name ? `（${name}）` : null}
+          </Text>
+          <Text style={styles.duration}>{duration} 分</Text>
         </View>
       </TouchableOpacity>
     );
@@ -36,8 +43,11 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', duratio
         onPress={() => navigation.navigate('EditExercise', { state: id })}
       >
         <View style={styles.exerciseList}>
-          <Text style={styles.name}>{name}</Text>
-          <Text style={styles.duration}>{duration} mins</Text>
+          <Text style={styles.name}>
+            {getCategoryLabel(category)}
+            {name ? `（${name}）` : null}
+          </Text>
+          <Text style={styles.duration}>{duration} 分</Text>
         </View>
       </TouchableOpacity>
     );
@@ -46,8 +56,8 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', duratio
       <View style= {[styles.graphItem, {flexDirection: 'row', alignItems: 'center'}]}>
         <View style={[styles.circle, { backgroundColor: color }]}></View>
         <View style={styles.exerciseList}>
-          <Text style={styles.name}>{name}</Text>
-          <Text style={styles.duration}>{duration} mins</Text>
+          <Text style={styles.name}>{category}</Text>
+          <Text style={styles.duration}>{duration} 分</Text>
         </View>
       </View>
     );
@@ -56,14 +66,14 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', duratio
 
 const styles = StyleSheet.create({
   homeItem: {
-    padding: 16,
+    padding: 18,
     borderBottomWidth: 0.3,
     borderBottomColor: 'gray',
-    width: screenWidth * 0.85,
+    width: screenWidth * 0.92,
   },
   lastItem: {
-    padding: 16,
-    width: screenWidth * 0.85,
+    padding: 18,
+    width: screenWidth * 0.92,
   },
   graphItem: {
     padding: 16,
@@ -72,6 +82,10 @@ const styles = StyleSheet.create({
     width: screenWidth * 0.85,
   },
   exerciseList: {
+    flex: 1, // circle の横に置かれる場合は残りを埋める
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginLeft: 10,
   },
   name: {
@@ -80,12 +94,12 @@ const styles = StyleSheet.create({
   duration: {
     fontSize: 16,
     color: 'gray',
+    textAlign: 'right',
   },
   circle: {
     width: 20,
     height: 20,
     borderRadius: 50,
-    // backgroundColor: 'skyblue' // styleプロパティに直接記述することで、動的に色を指定できる
   }
 });
 
