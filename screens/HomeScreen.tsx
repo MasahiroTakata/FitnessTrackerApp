@@ -67,7 +67,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   type typeOfGroupedDay = {
     [date: string]: Exercise[]
   };
-  // const groupedByDay: typeOfGroupedDay = {};
   const [exercisesByDay, setExercisesByDay] = useState<typeOfGroupedDay> ({});
   // FlatListにアクセスするためのref（参照）を作成
   const flatListRef = useRef<FlatList>(null);
@@ -77,9 +76,9 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   // カレンダーボタンを押下した時の処理（同じタブを連続押下した場合も対応できる）
   useEffect(() => {
     const paramsReload = async () => {
-      console.log(params.reload);
+      console.log('params.reload:', params.reload);
       if (typeof params.reload !== 'undefined') {
-        isCalendarIconTapped.current = true;
+        isCalendarIconTapped.current = false;
         const nowYearMonth = today
           .toLocaleDateString("ja-JP", {
           year: "numeric",
@@ -111,10 +110,11 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   useFocusEffect(
     useCallback(() => {
       const fetchUpdatedAt = async () => {
-        if (isCalendarIconTapped.current) {
+        if (isCalendarIconTapped.current || await AsyncStorage.getItem('params.reload') !== null) {
           console.log('カレンダーアイコンが押下されたため、処理をスキップ');
           // カレンダーアイコンが押下された場合は、処理をスキップしてフラグをリセット
           isCalendarIconTapped.current = false;
+          await AsyncStorage.removeItem('params.reload');
           return;
         }
 
@@ -202,79 +202,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     }
   };
 
-  // useEffect(() => {
-  //   if (isFirstRender.current) {
-  //     // 初回レンダー時は実行せず、フラグを false にする
-  //     isFirstRender.current = false;
-
-  //     return;
-  //   }
-
-  //   const loadData = async () => {
-  //     try {
-  //       const savedExercises = await AsyncStorage.getItem('exercises');
-  //       const selectedDate = await AsyncStorage.getItem('selectedDate');
-  //       const yearMonth = dayjs(selectedDate).format('YYYY-MM');
-
-  //       await AsyncStorage.removeItem('updatedAt');
-  //       await AsyncStorage.removeItem('selectedDate');
-
-  //       if(yearMonth == currentMonth){
-  //         const parsedExercises : Exercise[]= savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
-  //         // データが１件も保存されていない場合
-  //         if(parsedExercises == null){
-  //           setExercisesByDay({});
-  //         } else{
-  //           // filterメソッドを使用してexercisedDateが、今月のデータを取得
-  //           const nowMonthExercises = parsedExercises.filter(exercise => exercise.exercisedDate.startsWith(yearMonth));
-
-  //           nowMonthExercises.forEach((exercise) => {
-  //             const day = exercise.exercisedDate;
-  //             // 要素がその日付である配列の存在チェック（なければ、その日付の配列を用意する）
-  //             if (!groupedByDay[day]) {
-  //               groupedByDay[day] = [];
-  //             }
-  //             // その日付の配列にデータを格納する
-  //             groupedByDay[day].push(exercise);
-  //           });
-  //           // 日付のキーだけ取り出して、降順（新しい順）に並べ替え
-  //           const sortedDates = Object.keys(groupedByDay).sort((a, b) => (a < b ? 1 : -1));
-  //           // ソートされた順番で新しいオブジェクトを作る
-  //           const sortedGroupedByDay: { [date: string]: Exercise[] } = {};
-
-  //           sortedDates.forEach((date) => {
-  //             sortedGroupedByDay[date] = groupedByDay[date];
-  //           });
-
-  //           setExercisesByDay(sortedGroupedByDay);
-  //           /* カレンダーに印をつける実装 */
-  //           // エクササイズが記録されている日付のリストを取得する
-  //           const dateList = parsedExercises.map(item => item.exercisedDate);
-  //           // Setクラスを使って、dateListの重複を排除している
-  //           const uniqueDates = new Set(dateList);
-  //           // uniqueDatesをArray.fromで配列に変換する
-  //           // reduce関数で、{ 日付: オブジェクト }の形に変換&集積した
-  //           const markedDates = Array.from(uniqueDates).reduce<Record<string, { selected: boolean; marked: boolean; dotColor: string }>>(
-  //             (acc, date) => {
-  //               acc[date as string] = { selected: false, marked: true, dotColor: themeColor };
-  //               return acc;
-  //             },
-  //             {}
-  //           );
-
-  //           setMarkedDateDatas(markedDates);
-  //         }
-  //       }else{
-  //         setCurrentMonth(yearMonth);
-  //       }
-  //     } catch (error) {
-  //       console.error('Error loading data', error);
-  //     }
-  //   };
-
-  //   loadData();
-  // }, [updatedAt]);
-
   // その年月のエクササイズ情報を取得する
   const getSelectedYearMonthDatas = async () => {
     console.log('getSelectedYearMonthDatasの現在の年月:', currentMonth);
@@ -345,10 +272,10 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     // }
   };
 
-  useEffect(() => { // 日付変更と初期表示時に呼び出す
-    console.log('selectedDate:', params.reload);
-    console.log('selectedDate useEffect:', selectedDate);
-    getSelectedYearMonthDatas();
+  useEffect(() => { // 日付変更と初期表示時に呼び出す（Param.Reloadがあれば呼ばないようにする）
+    if (typeof params.reload == 'undefined') {
+      getSelectedYearMonthDatas();
+    }
   }, [selectedDate]);
 
   useEffect(() => { // 年月変更時に呼び出す

@@ -10,7 +10,7 @@ import { Calendar, DateData } from 'react-native-calendars';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useThemeStore } from '../stores/themeStore';
 import dayjs from 'dayjs';
-import { reload } from 'expo-router/build/global-state/routing';
+import { useLocalSearchParams } from 'expo-router';
 
 const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型を<any>として宣言している
   const [exerciseName, setExerciseName] = useState('');
@@ -34,6 +34,7 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
   };
   type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
   const navigation = useNavigation<NavigationProp>();
+  const params = useLocalSearchParams();
   // 初回読み込みで呼び出す（第二引数を空にすることで、初期表示時にこのuseEffectが呼び出される）
   useEffect(() => {
     getEditExercise();
@@ -104,8 +105,10 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
       );
       // エクササイズ保存
       await AsyncStorage.setItem('exercises', JSON.stringify(updatedExercises));
-      // await AsyncStorage.setItem('updatedAt', new Date().toISOString());
-      // await AsyncStorage.setItem('selectedDate', selectedDate);
+
+      if (typeof params.reload !== 'undefined') {
+        await AsyncStorage.setItem('params.reload', 'true');
+      }
       // 入力欄をセット
       setExerciseName(exerciseName);
       setDuration(duration);
@@ -137,7 +140,11 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
               .join("-"); // 例: 2025-09-20
             await AsyncStorage.setItem('selectedDate', nowFullDate);
             // 削除対象を除いた、エクササイズを改めてAsyncStorageに保存
-            await AsyncStorage.setItem("exercises", JSON.stringify(filteredExercises));
+            await AsyncStorage.setItem('exercises', JSON.stringify(filteredExercises));
+
+            if (typeof params.reload !== 'undefined') {
+              await AsyncStorage.setItem('params.reload', 'true');
+            }
             // 入力欄をリセット
             setExerciseName('');
             setDuration(0);
