@@ -17,11 +17,12 @@ const screenWidth = Dimensions.get('window').width;
 const getCategoryLabel = (category: number): string => {
   // catは、CategoryRecordsの１データのこと。findでcategoryを1行ずつ検索している
   const foundCategory = CategoryRecords.find((cat) => cat.value === category);
+
   return foundCategory ? foundCategory.label : "不明"; // 該当するカテゴリーがなければ「不明」
 };
 
 const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', category = 0, duration = 0, color = '', navigation }) => {
-  if(color === ''){
+  if(color === ''){ // ホーム画面（編集画面を表示する）
     return (
       <TouchableOpacity
         style={[styles.homeItem]}
@@ -36,7 +37,7 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', categor
         </View>
       </TouchableOpacity>
     );
-  } else if(color === 'isLast'){
+  } else if(color === 'isLast'){ // ホーム画面（編集画面を表示する）
     return (
       <TouchableOpacity
         style={[styles.lastItem]}
@@ -51,12 +52,12 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ id = '', name = '', categor
         </View>
       </TouchableOpacity>
     );
-  } else{ // ホーム画面（編集画面を表示する）
-    return ( // 円グラフ画面
+  } else{ // 円グラフ画面
+    return (
       <View style= {[styles.graphItem, {flexDirection: 'row', alignItems: 'center'}]}>
         <View style={[styles.circle, { backgroundColor: color }]}></View>
         <View style={styles.exerciseList}>
-          <Text style={styles.name}>{category}</Text>
+          <Text style={styles.name}>{getCategoryLabel(category)}</Text>
           <Text style={styles.duration}>{duration} 分</Text>
         </View>
       </View>

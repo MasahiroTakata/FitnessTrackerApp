@@ -13,7 +13,8 @@ import { NavigationProp } from '@react-navigation/native';
 import { useLocalSearchParams } from 'expo-router';
 
 type DonutChartProps = {
-  selectedDateProp: string; // ← ここを必要に応じて型定義する（例: string や number や オブジェクト）
+  selectedDateProp?: string;       // フル日付文字列（例: '2025-10-14'）など
+  selectedMonthProp?: string;      // 月指定（例: '2025-10'）が優先される
   navigation: NavigationProp<any>;
 };
 
@@ -21,11 +22,6 @@ type DonutChartProps = {
 //   navigation: NavigationProp<any>;
 // };
 // categoryから対応するlabelを取得する関数（propsがFlatListにて受け取ったカテゴリーID）
-const getCategoryLabel = (category: number): string => {
-  // catは、CategoryRecordsの１データのこと。findでcategoryを1行ずつ検索している
-  const foundCategory = CategoryRecords.find((cat) => parseInt(cat.value, 10) === category);
-  return foundCategory ? foundCategory.label : "不明"; // 該当するカテゴリーがなければ「不明」
-};
 
 const getExercisesbyYearMonth = async(selectedDateFormatted: string): Promise<summarizedExercises[]> => {
   try {
@@ -41,12 +37,12 @@ const getExercisesbyYearMonth = async(selectedDateFormatted: string): Promise<su
       // 同じカテゴリーIDのデータを取得
       const exercisesInCategory = nowMonthExercises.filter(item => item.category === categoryId);
       // mapで取得したcategoryIdで、colorを取得する
-      const color = CategoryRecords.find((cat) => parseInt(cat.value, 10) === parseInt(categoryId,10))?.['graphColor'];
+      const color = CategoryRecords.find((cat) => cat.value === categoryId)?.['graphColor'];
       // durationの合計値を計算
       const totalDuration = exercisesInCategory.reduce((sum, item) => sum + item.duration, 0);
       // 新しいオブジェクトとして返す
       return {
-        category: parseInt(categoryId, 10),
+        category: categoryId,
         duration: totalDuration,
         color: color,
       };
@@ -59,7 +55,7 @@ const getExercisesbyYearMonth = async(selectedDateFormatted: string): Promise<su
   }
 };
 
-const DonutChart: React.FC<any> = ({ selectedDateProp, navigation } : DonutChartProps) =>{
+const DonutChart: React.FC<any> = ({ selectedDateProp, selectedMonthProp, navigation } : DonutChartProps) =>{
   // ナビゲーションの型を定義
   // type RootStackParamList = {
   //   Home: { selectedMonth: string };
@@ -67,35 +63,40 @@ const DonutChart: React.FC<any> = ({ selectedDateProp, navigation } : DonutChart
   // type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
   // navigation = useNavigation<NavigationProp>();
   const [summarizedExercises, setSummarizedExercises] = useState<summarizedExercises[]>([]);
-  const [selectedDate, setSelectedDate] = useState(dayjs());
+  // 初期 selectedDate は props または今日を元に決める
+  const initialDate = selectedMonthProp
+    ? dayjs(selectedMonthProp + '-01')
+    : selectedDateProp
+      ? dayjs(selectedDateProp)
+      : dayjs();
+  const [selectedDate, setSelectedDate] = useState(initialDate);
   const isFirstRender = useRef(true);
   const params = useLocalSearchParams();
 
-  const handlePrevMonth = () => {
-    setSelectedDate((prev) => prev.subtract(1, "month"));
-  };
-  const handleNextMonth = () => {
-    setSelectedDate((prev) => prev.add(1, "month"));
-  };
+  const resolveDateFromProps = useCallback(() => {
+    if (selectedMonthProp) return dayjs(selectedMonthProp + '-01');
+    if (selectedDateProp) return dayjs(selectedDateProp);
+    return dayjs();
+  }, [selectedMonthProp, selectedDateProp]);
+
   // GraphScreenの画面を、違う画面から表示する際に呼び出す処理（初期表示でも使用）
   useFocusEffect(
     useCallback(() => {
       const fetchUpdatedAt = async () => {
-        const formattedDate = dayjs(selectedDateProp).format('YYYY-MM');
-        setSelectedDate(dayjs(formattedDate));
+        // フォーカス時は props を優先して selectedDate を設定
+        setSelectedDate(resolveDateFromProps());
       };
 
       fetchUpdatedAt();
-    }, [])
+    }, [resolveDateFromProps])
   );
 
   // グラフボタンを押下した時の処理（同じタブを連続押下した場合も対応できる）
   useEffect(() => {
     if (params.reload) {
-        const formattedDate = dayjs(selectedDateProp).format('YYYY-MM');
-        setSelectedDate(dayjs(formattedDate));
+      setSelectedDate(resolveDateFromProps());
     }
-  }, [params.reload]);
+  }, [params.reload, resolveDateFromProps]);
   
   // 年月が変更された時に呼び出すuseEffect関数
   useEffect(() => {
@@ -115,19 +116,6 @@ const DonutChart: React.FC<any> = ({ selectedDateProp, navigation } : DonutChart
 
   return (
     <View style={styles.container}>
-      <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}>
-        <TouchableOpacity onPress={handlePrevMonth} style={{ padding: 10 }}>
-          <Text style={{ fontSize: 20 }}>◀︎</Text>
-        </TouchableOpacity>
-
-        <Text style={{ fontSize: 18, fontWeight: "bold", marginHorizontal: 20 }}>
-          {selectedDate.format("YYYY年MM月")}
-        </Text>
-
-        <TouchableOpacity onPress={handleNextMonth} style={{ padding: 10 }}>
-          <Text style={{ fontSize: 20 }}>▶︎</Text>
-        </TouchableOpacity>
-      </View>
       <View style={styles.chartWrapper}>
         <PieChart
           data={summarizedExercises}
@@ -153,7 +141,7 @@ const DonutChart: React.FC<any> = ({ selectedDateProp, navigation } : DonutChart
       <FlatList
         data={ summarizedExercises }
         renderItem={({ item }) => (
-          <ExerciseItem id={''} name={ getCategoryLabel(item.category) } duration={item.duration} color={item.color ? item.color : 'noData'} navigation={navigation} />
+          <ExerciseItem id={''} name={ '' } category={item.category} duration={item.duration} color={item.color ? item.color : 'noData'} navigation={navigation} />
         )}
         keyExtractor={(item) => `${item.category}`}
       />
