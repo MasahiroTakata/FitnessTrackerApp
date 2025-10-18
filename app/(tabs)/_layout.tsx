@@ -69,6 +69,12 @@ export default function TabLayout() {
               <Foundation name={focused ? 'graph-pie' : 'graph-pie'} color={color} size='25'/>
             ),
           }}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              // ここでイベント発火
+              navigation.navigate('graph', { reload: Date.now() });
+            },
+          })}
         />
         <Tabs.Screen
           name="setting"

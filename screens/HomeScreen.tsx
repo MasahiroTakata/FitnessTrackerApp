@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import { useLocalSearchParams } from 'expo-router';
 import { useThemeStore } from '../stores/themeStore';
 import { useLayoutEffect } from 'react';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 type DateObject = {
   dateString: string;
@@ -17,6 +18,10 @@ type DateObject = {
   month: number;
   year: number;
   timestamp: number;
+};
+
+type RootStackParamList = {
+  index: undefined;
 };
 
 LocaleConfig.locales['ja'] = {
@@ -35,6 +40,8 @@ LocaleConfig.locales['ja'] = {
 
 LocaleConfig.defaultLocale = 'ja';
 
+type NavigationPropType = StackNavigationProp<RootStackParamList, 'index'>;
+
 const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネントの引数（props）として、自動的に提供される
   const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
   const today = new Date();
@@ -50,7 +57,8 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   const [markedDateDatas, setMarkedDateDatas] = useState<
   Record<string, { selected: boolean; marked: boolean; dotColor: string }>
   >({});
-  const navigation = useNavigation();
+  // const navigation = useNavigation(); // 残しておく
+  const navigation = useNavigation<NavigationPropType>();
   const isFirstRender = useRef(true);
   const isFirstRenderChangedMonth = useRef(true);
   // カレンダーアイコンをタップした時、useFocusEffectも呼ばれないようにするためのフラグ
@@ -79,6 +87,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
       console.log('params.reload:', params.reload);
       if (typeof params.reload !== 'undefined') {
         isCalendarIconTapped.current = false;
+        isFirstRenderChangedMonth.current = false;
         const nowYearMonth = today
           .toLocaleDateString("ja-JP", {
           year: "numeric",
@@ -92,8 +101,10 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
           const selectedMonth = selectedMonthRaw ? JSON.parse(selectedMonthRaw) : null;
           if (selectedMonth) {
             if (selectedMonth === nowYearMonth) {
+              console.log('同じ年月なので、再取得');
               getSelectedYearMonthDatas();
             } else {
+              console.log('違う年月なので、currentMonthを更新');
               setCurrentMonth(nowYearMonth);
             }
           } else {
@@ -204,10 +215,8 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
 
   // その年月のエクササイズ情報を取得する
   const getSelectedYearMonthDatas = async () => {
-    console.log('getSelectedYearMonthDatasの現在の年月:', currentMonth);
     await AsyncStorage.setItem('selectedMonth', JSON.stringify(currentMonth));
-    const selectedMonthRaw = await AsyncStorage.getItem('selectedMonth');
-    console.log('getSelectedYearMonthDatasのselectedMonthRaw:', selectedMonthRaw);
+
     try {
       const savedExercises = await AsyncStorage.getItem('exercises');
       const parsedExercises : Exercise[]= savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
@@ -285,7 +294,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
 
       return;
     } else{
-      console.log('currentMonth useEffect:', currentMonth);
       getSelectedYearMonthDatas();
     }
   }, [currentMonth]);
