@@ -79,6 +79,27 @@ const DonutChart: React.FC<any> = ({ selectedDateProp, selectedMonthProp, naviga
     return dayjs();
   }, [selectedMonthProp, selectedDateProp]);
 
+  // 空データ時に表示する単一スライス（見た目を保つため）
+  const emptySlice = [
+    {
+      category: -1,
+      duration: 1,
+      color: '#e6e6e6',
+      label: 'データなし',
+    },
+  ];
+
+  // チャートに渡すデータ（空なら emptySlice を渡す）
+  const chartData = summarizedExercises.length > 0 ? summarizedExercises : emptySlice;
+ 
+   // 前月 / 次月ボタン用ハンドラ（state を dayjs で保持している想定）
+   const handlePrevMonth = () => {
+     setSelectedDate(prev => prev.subtract(1, 'month'));
+   };
+   const handleNextMonth = () => {
+     setSelectedDate(prev => prev.add(1, 'month'));
+   };
+ 
   // GraphScreenの画面を、違う画面から表示する際に呼び出す処理（初期表示でも使用）
   useFocusEffect(
     useCallback(() => {
@@ -117,27 +138,32 @@ const DonutChart: React.FC<any> = ({ selectedDateProp, selectedMonthProp, naviga
   return (
     <View style={styles.container}>
       <View style={styles.chartWrapper}>
-        <PieChart
-          data={summarizedExercises}
-          width={700}
-          height={200}
-          chartConfig={{ // グラフの全体的なスタイル設定を行うオブジェクト
-            backgroundColor: "#1cc910",
-            backgroundGradientFrom: "#000",
-            backgroundGradientTo: "#000",
-            color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-          }}
-          accessor={"duration"} // data配列から、円グラフの割合を描く要素を指定する
-          backgroundColor={"transparent"} // transparentを指定することで、背景を透明に設定
-          paddingLeft={"100"}
-          center={[75, 0]} // グラフの中心を整える（左上を始点としている）
-          // absolute // セグメント値（内訳みたいな説明が書かれたやつ）を中央に表示する
-          hasLegend={false}
-        />
-        {/* ドーナツ中央部分 */}
-        <View style={styles.centerText}>
-        </View>
-      </View>
+        <>
+          <PieChart
+            data={chartData}
+            width={700}
+            height={200}
+            chartConfig={{
+              backgroundColor: "#ffffff",
+              backgroundGradientFrom: "#ffffff",
+              backgroundGradientTo: "#ffffff",
+              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+            }}
+            accessor={"duration"}
+            backgroundColor={"transparent"}
+            paddingLeft={"100"}
+            center={[75, 0]}
+            hasLegend={false}
+            // empty の時でもセグメントが描画されるようにする
+          />
+          {/* 中央ラベル：データなしなら表示、データ有りなら任意の中央表示 */}
+          <View style={styles.centerText}>
+            {summarizedExercises.length === 0 ? (
+              <Text style={{ fontSize: 14, color: '#666' }}>No Data</Text>
+            ) : null}
+          </View>
+        </>
+       </View>
       <FlatList
         data={ summarizedExercises }
         renderItem={({ item }) => (
