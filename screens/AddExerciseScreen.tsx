@@ -119,10 +119,14 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
   const pickerRef = useRef<any>(null);
 
   return (
-    <ScrollView contentContainerStyle={CommonStyles.container} scrollEnabled={true}>
+    <ScrollView
+      contentContainerStyle={[CommonStyles.container, styles.topContainer]}
+      scrollEnabled={true}
+      keyboardShouldPersistTaps="handled"
+    >
       <Text style={styles.label}>エクササイズカテゴリを選択</Text>
       {/* Picker 全体をタップ可能にするために ref でトグル操作するラッパー */}
-      <View style={{ position: 'relative' }}>
+      <View style={{ position: 'relative', marginBottom: 12 }}>
         <RNPickerSelect
           ref={pickerRef}
           onValueChange={(value) => {
@@ -258,6 +262,12 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
+  topContainer: {
+    flexGrow: 1,
+    justifyContent: 'flex-start',
+    paddingTop: 20,
+    paddingHorizontal: 16,
+  },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
