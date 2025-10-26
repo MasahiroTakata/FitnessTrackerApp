@@ -42,7 +42,7 @@ const GraphScreen: React.FC<any> = (state) => {
           }}
           style={{ paddingHorizontal: 50 }}
         >
-          <Text style={{ color: '#fff', fontSize: 20 }}>{'‹'}</Text>
+          <Text style={{ color: '#fff', fontSize: 25 }}>{'‹'}</Text>
         </TouchableOpacity>
       ),
       headerRight: () => (
@@ -53,7 +53,7 @@ const GraphScreen: React.FC<any> = (state) => {
           }}
           style={{ paddingHorizontal: 50 }}
         >
-          <Text style={{ color: '#fff', fontSize: 20 }}>{'›'}</Text>
+          <Text style={{ color: '#fff', fontSize: 25 }}>{'›'}</Text>
         </TouchableOpacity>
       ),
     });

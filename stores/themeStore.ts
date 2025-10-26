@@ -7,7 +7,6 @@ type ThemeStore = {
 };
 
 export const useThemeStore = create<ThemeStore>((set) => {
-  console.log('useThemeStoreが呼び出されました。'); // デバッグ用ログ
   // 初期値としてデフォルトカラーを設定
   const initialState = {
     themeColor: '#007AFF', // デフォルトカラー
