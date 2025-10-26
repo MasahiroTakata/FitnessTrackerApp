@@ -84,7 +84,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   // カレンダーボタンを押下した時の処理（同じタブを連続押下した場合も対応できる）
   useEffect(() => {
     const paramsReload = async () => {
-      console.log('params.reload:', params.reload);
       if (typeof params.reload !== 'undefined') {
         isCalendarIconTapped.current = false;
         isFirstRenderChangedMonth.current = false;
@@ -97,14 +96,11 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
         .join("-"); // 配列に格納された値をハイフンで結合して文字列にする
         try{
           const selectedMonthRaw = await AsyncStorage.getItem('selectedMonth');
-          console.log('paramsReloadのselectedMonthRaw:', selectedMonthRaw);
           const selectedMonth = selectedMonthRaw ? JSON.parse(selectedMonthRaw) : null;
           if (selectedMonth) {
             if (selectedMonth === nowYearMonth) {
-              console.log('同じ年月なので、再取得');
               getSelectedYearMonthDatas();
             } else {
-              console.log('違う年月なので、currentMonthを更新');
               setCurrentMonth(nowYearMonth);
             }
           } else {
@@ -122,7 +118,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     useCallback(() => {
       const fetchUpdatedAt = async () => {
         if (isCalendarIconTapped.current || await AsyncStorage.getItem('params.reload') !== null) {
-          console.log('カレンダーアイコンが押下されたため、処理をスキップ');
           // カレンダーアイコンが押下された場合は、処理をスキップしてフラグをリセット
           isCalendarIconTapped.current = false;
           await AsyncStorage.removeItem('params.reload');
@@ -139,7 +134,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
           .join("-"); // 配列に格納された値をハイフンで結合して文字列にする
 
           const selectedMonthRaw = await AsyncStorage.getItem('selectedMonth');
-          console.log('useFocusEffectのselectedMonthRaw:', selectedMonthRaw);
           // AsyncStorage に保存するときに JSON.stringify しているため、取得値は "2025-09" のようにクォート付きの文字列になっていることがある
           // JSON.parse で元の文字列（クォートなし）に戻す（null チェック含む）
           const selectedMonth = selectedMonthRaw ? JSON.parse(selectedMonthRaw) : null;
@@ -254,9 +248,11 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
         const uniqueDates = new Set(dateList);
         // uniqueDatesをArray.fromで配列に変換する
         // reduce関数で、{ 日付: オブジェクト }の形に変換&集積した
+        // AsyncStorage から取得した値が null の場合はデフォルト '#007AFF' を使って string に固定する
+        const themeColorValue: string = (await AsyncStorage.getItem('themeColor')) ?? '#007AFF';
         const markedDates = Array.from(uniqueDates).reduce<Record<string, { selected: boolean; marked: boolean; dotColor: string }>>(
           (acc, date) => {
-            acc[date as string] = { selected: false, marked: true, dotColor: themeColor };
+            acc[date as string] = { selected: false, marked: true, dotColor: themeColorValue };
             return acc;
           },
           {}
@@ -306,7 +302,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
 
       return;
     } else{
-      console.log('themeColor useEffect:', themeColor);
       getSelectedYearMonthDatas();
     }
   }, [themeColor]);

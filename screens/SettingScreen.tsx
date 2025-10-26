@@ -32,7 +32,6 @@ const SettingScreen: React.FC = () => {
     const updateThemeColor = async () => {
       try {
         await AsyncStorage.setItem('themeColor', themeColor);
-        console.log(`テーマカラーが保存されました: ${themeColor}`);
       } catch (e) {
         console.error('AsyncStorage 読み込みエラー:', e);
       }
