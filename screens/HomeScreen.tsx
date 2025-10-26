@@ -254,9 +254,11 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
         const uniqueDates = new Set(dateList);
         // uniqueDatesをArray.fromで配列に変換する
         // reduce関数で、{ 日付: オブジェクト }の形に変換&集積した
+        // AsyncStorage から取得した値が null の場合はデフォルト '#007AFF' を使って string に固定する
+        const themeColorValue: string = (await AsyncStorage.getItem('themeColor')) ?? '#007AFF';
         const markedDates = Array.from(uniqueDates).reduce<Record<string, { selected: boolean; marked: boolean; dotColor: string }>>(
           (acc, date) => {
-            acc[date as string] = { selected: false, marked: true, dotColor: themeColor };
+            acc[date as string] = { selected: false, marked: true, dotColor: themeColorValue };
             return acc;
           },
           {}
