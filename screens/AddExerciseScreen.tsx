@@ -9,6 +9,7 @@ import { Calendar, DateData } from "react-native-calendars";
 import dayjs from 'dayjs';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useThemeStore } from '../stores/themeStore';
+import type { RootStackParamList } from '../types/common';
 
 const AddExerciseScreen: React.FC<any> = ({ route }) => {
   const [exerciseName, setExerciseName] = useState('');
@@ -32,10 +33,6 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
   // 日付入力用
   const [selectedDate, setSelectedDate] = useState(formatted); // 今日の日付をデフォルトに設定
   const [isCalendarVisible, setCalendarVisible] = useState(false);
-  // ナビゲーションの型を定義
-  type RootStackParamList = {
-    index: undefined;
-  };
   type NavigationProp = StackNavigationProp<RootStackParamList, 'index'>;
   const navigation = useNavigation<NavigationProp>();
   const { themeColor } = useThemeStore();

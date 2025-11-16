@@ -7,10 +7,8 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { NavigationProp } from '@react-navigation/native';
 import { useThemeStore } from '../stores/themeStore';
 import dayjs from 'dayjs';
+import type { RootStackParamList } from '../types/common';
 
-type RootStackParamList = {
-  index: undefined;
-};
 type NavigationPropType = StackNavigationProp<RootStackParamList, 'index'>;
 
 const GraphScreen: React.FC<any> = (state) => {

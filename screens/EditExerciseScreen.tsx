@@ -11,6 +11,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { useThemeStore } from '../stores/themeStore';
 import dayjs from 'dayjs';
 import { useLocalSearchParams } from 'expo-router';
+import type { RootStackParamList } from '../types/common';
 
 const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型を<any>として宣言している
   const [exerciseName, setExerciseName] = useState('');
@@ -26,12 +27,6 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
   const [isSuccessModalVisible, setSuccessModalVisible] = useState(false);
   // 削除成功モーダル
   const [isDeleteSuccessModalVisible, setDeleteSuccessModalVisible] = useState(false);
-  // ナビゲーションの型を定義
-  type RootStackParamList = {
-    Home: {};
-    Graph: undefined;
-    AddExercise: { state: string };
-  };
   type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
   const navigation = useNavigation<NavigationProp>();
   const params = useLocalSearchParams();
