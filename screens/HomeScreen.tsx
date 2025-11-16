@@ -5,7 +5,7 @@ import ExerciseItem from './ExerciseItem';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from '../styles/commonStyles';
 import { Exercise } from '@/types/exercise';
-import { Calendar, DateData } from 'react-native-calendars';
+import { Calendar, DateData, LocaleConfig } from 'react-native-calendars';
 import { configureJaLocale } from '../lib/locale';
 import type { DateObject, RootStackParamList } from '../types/common';
 import dayjs from 'dayjs';
@@ -20,7 +20,7 @@ configureJaLocale();
 type NavigationPropType = StackNavigationProp<RootStackParamList, 'index'>;
 
 const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネントの引数（props）として、自動的に提供される
-  const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
+  const weekDays: string[] = LocaleConfig.locales[LocaleConfig.defaultLocale]?.dayNamesShort;
   const today = new Date();
   const formatted = today
     .toLocaleDateString("ja-JP", {
