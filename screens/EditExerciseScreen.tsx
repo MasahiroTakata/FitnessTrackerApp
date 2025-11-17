@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, ScrollView,
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CommonStyles from '../styles/commonStyles';
+import styles from '../styles/EditExerciseStyles';
 import RNPickerSelect from 'react-native-picker-select';
 import { Exercise } from '@/types/exercise';
 import { CategoryRecords } from '@/constants/CategoryRecords'
@@ -11,6 +12,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { useThemeStore } from '../stores/themeStore';
 import dayjs from 'dayjs';
 import { useLocalSearchParams } from 'expo-router';
+import type { RootStackParamList } from '../types/common';
 
 const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型を<any>として宣言している
   const [exerciseName, setExerciseName] = useState('');
@@ -26,12 +28,6 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
   const [isSuccessModalVisible, setSuccessModalVisible] = useState(false);
   // 削除成功モーダル
   const [isDeleteSuccessModalVisible, setDeleteSuccessModalVisible] = useState(false);
-  // ナビゲーションの型を定義
-  type RootStackParamList = {
-    Home: {};
-    Graph: undefined;
-    AddExercise: { state: string };
-  };
   type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
   const navigation = useNavigation<NavigationProp>();
   const params = useLocalSearchParams();
@@ -342,79 +338,6 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  topContainer: {
-    flexGrow: 1,
-    justifyContent: 'flex-start',
-    paddingTop: 20,
-    paddingHorizontal: 16,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 16,
-    paddingHorizontal: 8,
-  },
-  button: {
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 10,
-  },
-  selectedCategory: {
-    fontSize: 16,
-    marginTop: 20,
-  },
-  dateText: {
-    fontSize: 18,
-    color: "black",
-    padding: 10,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 5,
-  },
-  dateTouchable: {
-    marginBottom: 16,
-  },
-  dateRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: "100%",
-  },
-  calendarIcon: {
-    fontSize: 20,
-    color: "#555",
-    marginLeft: 8,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  calendarContainer: {
-    backgroundColor: "white",
-    borderRadius: 10,
-    padding: 20,
-    width: "90%",
-  },
-  closeButton: {
-    marginTop: 10,
-    padding: 10,
-    backgroundColor: "blue",
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  closeButtonText: {
-    color: "white",
-    fontSize: 16,
-  },
-});
 
 const pickerSelectStyles = {
   inputIOS: {

@@ -18,11 +18,6 @@ type DonutChartProps = {
   navigation: NavigationProp<any>;
 };
 
-// type Props = {
-//   navigation: NavigationProp<any>;
-// };
-// categoryから対応するlabelを取得する関数（propsがFlatListにて受け取ったカテゴリーID）
-
 const getExercisesbyYearMonth = async(selectedDateFormatted: string): Promise<summarizedExercises[]> => {
   try {
     const savedExercises = await AsyncStorage.getItem('exercises');
@@ -56,12 +51,6 @@ const getExercisesbyYearMonth = async(selectedDateFormatted: string): Promise<su
 };
 
 const DonutChart: React.FC<any> = ({ selectedDateProp, selectedMonthProp, navigation } : DonutChartProps) =>{
-  // ナビゲーションの型を定義
-  // type RootStackParamList = {
-  //   Home: { selectedMonth: string };
-  // };
-  // type NavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
-  // navigation = useNavigation<NavigationProp>();
   const [summarizedExercises, setSummarizedExercises] = useState<summarizedExercises[]>([]);
   // 初期 selectedDate は props または今日を元に決める
   const initialDate = selectedMonthProp

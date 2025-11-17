@@ -6,6 +6,7 @@ import styles from '../styles/commonStyles';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import ThemePickerPanel from './ThemePickerPanel';
+import type { RootStackParamList } from '../types/common';
 
 const colors = [
   '#007AFF', '#FF3B30', '#34C759', '#FF9500', '#8E8E93', '#5856D6', '#FF2D55', '#00C7BE',
@@ -17,7 +18,6 @@ const SettingScreen: React.FC = () => {
   const { themeColor, setThemeColor } = useThemeStore();
   const isFirstRender = useRef(true);
   const [pickerVisible, setPickerVisible] = useState(false);
-  type RootStackParamList = { index: undefined; };
   type NavigationProp = StackNavigationProp<RootStackParamList, 'index'>;
   const navigation = useNavigation<NavigationProp>();
 
