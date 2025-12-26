@@ -101,13 +101,6 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
       setSuccessModalVisible(true);
     }
   };
-  // 日付のフォーマットを調整する関数（例: yyyy-mm-dd）
-  const formatDate = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // 月を2桁に
-    const day = String(date.getDate()).padStart(2, "0"); // 日を2桁に
-    return `${year}/${month}/${day}`;
-  };
   // 日付を選択したときの処理
   const onDateSelect = (date: string) => {
     setSelectedDate(date);
@@ -169,7 +162,7 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
       >
         <View style={styles.dateRow}>
           <Text style={[styles.dateText, { flex: 1 }]}>
-            {formatDate(new Date(selectedDate))}
+            {dayjs(selectedDate).format('YYYY/MM/DD')}
           </Text>
           {/* シンプルに絵文字でアイコン表示。必要なら vector-icon に置き換えてください */}
           <Text style={styles.calendarIcon}>📅</Text>
