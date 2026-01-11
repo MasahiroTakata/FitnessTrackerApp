@@ -31,8 +31,8 @@ const getExercisesbyYearMonth = async(selectedDateFormatted: string): Promise<su
     const summarizedExercises = Array.from(uniqueCategories).map(categoryId => {
       // 同じカテゴリーIDのデータを取得
       const exercisesInCategory = nowMonthExercises.filter(item => item.category === categoryId);
-      // mapで取得したcategoryIdで、colorを取得する
-      const color = CategoryRecords.find((cat) => cat.value === categoryId)?.['graphColor'];
+      // mapで取得したcategoryIdで、colorを取得する（未設定時はデフォルト色を使用）
+      const color = CategoryRecords.find((cat) => cat.value === categoryId)?.['graphColor'] ?? '#cccccc';
       // durationの合計値を計算
       const totalDuration = exercisesInCategory.reduce((sum, item) => sum + item.duration, 0);
       // 新しいオブジェクトとして返す

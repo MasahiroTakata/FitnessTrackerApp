@@ -9,7 +9,7 @@ import { useThemeStore } from '../stores/themeStore';
 import dayjs from 'dayjs';
 import type { RootStackParamList } from '../types/common';
 
-type NavigationPropType = StackNavigationProp<RootStackParamList, 'index'>;
+type NavigationPropType = StackNavigationProp<RootStackParamList, 'Graph'>;
 
 const GraphScreen: React.FC<any> = (state) => {
   const navigation = useNavigation<NavigationPropType>();

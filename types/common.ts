@@ -7,8 +7,9 @@ export type DateObject = {
 };
 
 export type RootStackParamList = {
-  index: undefined;
+  index: {};
   Home: {};
-  Graph: undefined;
+  Graph: {};
   AddExercise: { state: string };
+  Setting: {};
 };

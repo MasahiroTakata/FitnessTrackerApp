@@ -34,7 +34,7 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
   // 日付入力用
   const [selectedDate, setSelectedDate] = useState(formatted); // 今日の日付をデフォルトに設定
   const [isCalendarVisible, setCalendarVisible] = useState(false);
-  type NavigationProp = StackNavigationProp<RootStackParamList, 'index'>;
+  type NavigationProp = StackNavigationProp<RootStackParamList, 'AddExercise'>;
   const navigation = useNavigation<NavigationProp>();
   const { themeColor } = useThemeStore();
 
@@ -74,15 +74,25 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
     // exerciseNameは任意なので空でも保存可能
     if (true) {
       const savedExercises = await AsyncStorage.getItem('exercises');
-       // JSON形式の文字列をオブジェクトに変換。これによりlengthでデータ数を取得できる
-      const parsedExercises = savedExercises ? JSON.parse(savedExercises) : [];
+      let parsedExercises = [];
+
+      try {
+        // JSON形式の文字列をオブジェクトに変換。これによりlengthでデータ数を取得できる
+        parsedExercises = savedExercises ? JSON.parse(savedExercises) : [];
+      } catch (e) {
+        parsedExercises = [];
+      }
+
       const counter = Number(parsedExercises?.length) + 1;
+      const category = CategoryRecords.find(
+        (cat) => cat.value === parseInt(selectedCategory, 10)
+      );
       const newExercise = {
         id: counter,
         name: exerciseName,
         category: parseInt(selectedCategory, 10),
         duration: parsedDuration,
-        color: CategoryRecords.find((cat) => cat.value === parseInt(selectedCategory, 10))?.['graphColor'],
+        color: category?.['graphColor'] ?? '#cccccc',
         exercisedDate: selectedDate,
       };
       // 元々登録されているデータに、今回の新規データを追加した配列を用意する
@@ -162,19 +172,19 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
       >
         <View style={styles.dateRow}>
           <Text style={[styles.dateText, { flex: 1 }]}>
-            {dayjs(selectedDate).format('YYYY/MM/DD')}
+            {dayjs(selectedDate ?? new Date()).format('YYYY/MM/DD')}
           </Text>
           {/* シンプルに絵文字でアイコン表示。必要なら vector-icon に置き換えてください */}
           <Text style={styles.calendarIcon}>📅</Text>
         </View>
       </TouchableOpacity>
       {/* モーダルにカレンダーを表示 */}
-      <Modal visible={isCalendarVisible} transparent={true} animationType="slide">
+      <Modal visible={isCalendarVisible} transparent={true} animationType="slide" presentationStyle="overFullScreen">
         <View style={styles.modalContainer}>
           <View style={styles.calendarContainer}>
             <Calendar
               // 現在の日付を初期選択状態に設定
-              current={selectedDate || undefined}
+              current={selectedDate}
               onDayPress={(day : DateData) => onDateSelect(day.dateString)} // 日付選択時のコールバック
               markedDates={{
                 [selectedDate]: { selected: true, selectedColor: themeColor }, // 選択中の日付をテーマカラーで強調
@@ -182,7 +192,7 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
               // 見出しを yyyy年mm月 (例: 2025年09月) 形式で表示
               renderHeader={(date?: Date) => (
                 <Text style={{ textAlign: 'center', fontSize: 16, marginBottom: 8 }}>
-                  {dayjs(date).format('YYYY年MM月')}
+                  {date ? dayjs(date).format('YYYY年MM月') : dayjs(new Date()).format('YYYY年MM月')}
                 </Text>
               )}
               theme={{

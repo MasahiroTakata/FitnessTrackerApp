@@ -18,7 +18,7 @@ const SettingScreen: React.FC = () => {
   const { themeColor, setThemeColor } = useThemeStore();
   const isFirstRender = useRef(true);
   const [pickerVisible, setPickerVisible] = useState(false);
-  type NavigationProp = StackNavigationProp<RootStackParamList, 'index'>;
+  type NavigationProp = StackNavigationProp<RootStackParamList, 'Setting'>;
   const navigation = useNavigation<NavigationProp>();
 
   useEffect(() => {
