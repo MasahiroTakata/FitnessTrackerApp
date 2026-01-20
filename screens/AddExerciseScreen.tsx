@@ -23,14 +23,15 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
   const [isSuccessModalVisible, setSuccessModalVisible] = useState(false);
   const today = new Date();
   // 初期日付をシステム日付にする
-  const formatted = today
-    .toLocaleDateString("ja-JP", {
-      year: "numeric",
-      month: "2-digit", // デフォルトは１桁（1月だと1と表示される）、2-digitとすることで２桁としてくれる（１月なら01月）
-      day: "2-digit",
-    })
-    .split("/") // スラッシュ区切りで配列で格納する
-    .join("-"); // 配列に格納された値をハイフンで結合して文字列にする
+  // const formatted = today
+  //   .toLocaleDateString("ja-JP", {
+  //     year: "numeric",
+  //     month: "2-digit", // デフォルトは１桁（1月だと1と表示される）、2-digitとすることで２桁としてくれる（１月なら01月）
+  //     day: "2-digit",
+  //   })
+  //   .split("/") // スラッシュ区切りで配列で格納する
+  //   .join("-"); // 配列に格納された値をハイフンで結合して文字列にする
+  const formatted = dayjs().format('YYYY-MM-DD');
   // 日付入力用
   const [selectedDate, setSelectedDate] = useState(formatted); // 今日の日付をデフォルトに設定
   const [isCalendarVisible, setCalendarVisible] = useState(false);
@@ -74,12 +75,12 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
     // exerciseNameは任意なので空でも保存可能
     if (true) {
       const savedExercises = await AsyncStorage.getItem('exercises');
-      let parsedExercises = [];
+      let parsedExercises: any[] = [];
 
       try {
-        // JSON形式の文字列をオブジェクトに変換。これによりlengthでデータ数を取得できる
         parsedExercises = savedExercises ? JSON.parse(savedExercises) : [];
-      } catch (e) {
+        if (!Array.isArray(parsedExercises)) parsedExercises = [];
+      } catch {
         parsedExercises = [];
       }
 
@@ -149,7 +150,13 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
         <TouchableOpacity
           style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
           activeOpacity={1}
-          onPress={() => pickerRef.current?.togglePicker?.()}
+          onPress={() => {
+            try {
+              pickerRef.current?.togglePicker?.();
+            } catch (e) {
+              console.warn('Picker open failed', e);
+            }
+          }}
         />
       </View>
       <Text style={styles.label}>エクササイズした時間（分）</Text>
@@ -184,17 +191,22 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
           <View style={styles.calendarContainer}>
             <Calendar
               // 現在の日付を初期選択状態に設定
-              current={selectedDate}
+              current={selectedDate || dayjs().format('YYYY-MM-DD')}
               onDayPress={(day : DateData) => onDateSelect(day.dateString)} // 日付選択時のコールバック
               markedDates={{
                 [selectedDate]: { selected: true, selectedColor: themeColor }, // 選択中の日付をテーマカラーで強調
               }}
               // 見出しを yyyy年mm月 (例: 2025年09月) 形式で表示
-              renderHeader={(date?: Date) => (
-                <Text style={{ textAlign: 'center', fontSize: 16, marginBottom: 8 }}>
-                  {date ? dayjs(date).format('YYYY年MM月') : dayjs(new Date()).format('YYYY年MM月')}
-                </Text>
-              )}
+              renderHeader={(date) => {
+                const safeDate = dayjs(date ?? undefined);
+                return (
+                  <Text style={{ textAlign: 'center', fontSize: 16, marginBottom: 8 }}>
+                    {safeDate.isValid()
+                      ? safeDate.format('YYYY年MM月')
+                      : dayjs().format('YYYY年MM月')}
+                  </Text>
+                );
+              }}
               theme={{
                 selectedDayBackgroundColor: themeColor,
                 selectedDayTextColor: '#ffffff',
