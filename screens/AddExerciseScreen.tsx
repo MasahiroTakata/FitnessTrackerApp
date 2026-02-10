@@ -1,16 +1,17 @@
 import React, { useState, useLayoutEffect, useRef } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import CommonStyles from '../styles/commonStyles';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getCommonStyles } from '../styles/commonStyles';
 import styles from '../styles/AddExerciseStyles';
-import RNPickerSelect from 'react-native-picker-select';
+// import RNPickerSelect from 'react-native-picker-select';
 import { CategoryRecords } from '@/constants/CategoryRecords'
 import { Calendar, DateData } from "react-native-calendars";
 import dayjs from 'dayjs';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useThemeStore } from '../stores/themeStore';
 import type { RootStackParamList } from '../types/common';
+import { useColorScheme } from 'react-native';
 
 const AddExerciseScreen: React.FC<any> = ({ route }) => {
   const [exerciseName, setExerciseName] = useState('');
@@ -38,6 +39,8 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
   type NavigationProp = StackNavigationProp<RootStackParamList, 'AddExercise'>;
   const navigation = useNavigation<NavigationProp>();
   const { themeColor } = useThemeStore();
+  const colorScheme = useColorScheme();
+  const CommonStyles = getCommonStyles(colorScheme);
 
   // 追加: HomeScreenと同様のナビヘッダを設定（中央に「入力」ラベル）
   useLayoutEffect(() => {
@@ -74,11 +77,20 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
 
     // exerciseNameは任意なので空でも保存可能
     if (true) {
-      const savedExercises = await AsyncStorage.getItem('exercises');
+      // const savedExercises = await AsyncStorage.getItem('exercises');
+      const savedExercises = {
+        id: 1,
+        name: "Morning Run",
+        category: 1,
+        duration: 30,
+        color: "#FF5733",
+        exercisedDate : "2024-06-20"
+      };
       let parsedExercises: any[] = [];
 
       try {
-        parsedExercises = savedExercises ? JSON.parse(savedExercises) : [];
+        // parsedExercises = savedExercises ? JSON.parse(savedExercises) : [];
+        parsedExercises = savedExercises ? [savedExercises] : [];
         if (!Array.isArray(parsedExercises)) parsedExercises = [];
       } catch {
         parsedExercises = [];
@@ -101,7 +113,7 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
         ...parsedExercises,
           newExercise
       ];
-      await AsyncStorage.setItem('exercises', JSON.stringify(newExercise2));
+      // await AsyncStorage.setItem('exercises', JSON.stringify(newExercise2));
       // await AsyncStorage.setItem('updatedAt', new Date().toISOString());
       // await AsyncStorage.setItem('selectedDate', selectedDate);
       // 入力欄をリセット
@@ -126,39 +138,6 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
       scrollEnabled={true}
       keyboardShouldPersistTaps="handled"
     >
-      <Text style={styles.label}>エクササイズカテゴリを選択</Text>
-      {/* Picker 全体をタップ可能にするために ref でトグル操作するラッパー */}
-      <View style={{ position: 'relative', marginBottom: 12 }}>
-        <RNPickerSelect
-          ref={pickerRef}
-          onValueChange={(value) => {
-            setSelectedCategory(value);
-          }}
-          items={CategoryRecords}
-          placeholder={{ label: 'カテゴリーを選択してください', value: "", color: "#000" }}
-          style={{
-            ...pickerSelectStyles,
-            iconContainer: { right: 10, top: 12 },
-            inputIOS: { ...pickerSelectStyles.inputIOS, paddingRight: 40 },
-            inputAndroid: { ...pickerSelectStyles.inputAndroid, paddingRight: 40 },
-          }}
-          useNativeAndroidPickerStyle={false}
-          value={selectedCategory}
-          Icon={() => (<Text style={{ fontSize: 18, color: '#789' }}>▼</Text>)}
-        />
-        {/* 透明なオーバーレイで領域全体をキャッチする */}
-        <TouchableOpacity
-          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-          activeOpacity={1}
-          onPress={() => {
-            try {
-              pickerRef.current?.togglePicker?.();
-            } catch (e) {
-              console.warn('Picker open failed', e);
-            }
-          }}
-        />
-      </View>
       <Text style={styles.label}>エクササイズした時間（分）</Text>
       <TextInput
         style={styles.input}

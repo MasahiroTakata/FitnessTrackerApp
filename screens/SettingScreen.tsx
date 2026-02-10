@@ -2,11 +2,12 @@ import React, { useEffect, useRef, useLayoutEffect, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useThemeStore } from '../stores/themeStore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import styles from '../styles/commonStyles';
+import { getCommonStyles } from '../styles/commonStyles';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import ThemePickerPanel from './ThemePickerPanel';
 import type { RootStackParamList } from '../types/common';
+import { useColorScheme } from 'react-native';
 
 const colors = [
   '#007AFF', '#FF3B30', '#34C759', '#FF9500', '#8E8E93', '#5856D6', '#FF2D55', '#00C7BE',
@@ -20,6 +21,8 @@ const SettingScreen: React.FC = () => {
   const [pickerVisible, setPickerVisible] = useState(false);
   type NavigationProp = StackNavigationProp<RootStackParamList, 'Setting'>;
   const navigation = useNavigation<NavigationProp>();
+  const colorScheme = useColorScheme();
+  const styles = getCommonStyles(colorScheme);
 
   useEffect(() => {
     if (isFirstRender.current) {

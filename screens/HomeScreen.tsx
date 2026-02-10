@@ -3,7 +3,6 @@ import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import ExerciseItem from './ExerciseItem';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import styles from '../styles/commonStyles';
 import { Exercise } from '@/types/exercise';
 import { Calendar, DateData, LocaleConfig } from 'react-native-calendars';
 import { configureJaLocale } from '../lib/locale';
@@ -13,6 +12,8 @@ import { useLocalSearchParams } from 'expo-router';
 import { useThemeStore } from '../stores/themeStore';
 import { useLayoutEffect } from 'react';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { useColorScheme } from 'react-native';
+import { getCommonStyles } from '../styles/commonStyles';
 
 // ロケールの初期化（モジュール読み込み時に一度だけ実行）
 configureJaLocale();
@@ -58,6 +59,8 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   // const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const params = useLocalSearchParams();
   const { themeColor, setThemeColor } = useThemeStore();
+  const colorScheme = useColorScheme();
+  const styles = getCommonStyles(colorScheme); // 関数に渡す
   // カレンダーボタンを押下した時の処理（同じタブを連続押下した場合も対応できる）
   useEffect(() => {
     const paramsReload = async () => {

@@ -2,12 +2,13 @@ import React, { useLayoutEffect, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import DonutChart from './DonutChart';
 import { useNavigation } from '@react-navigation/native';
-import styles from '../styles/commonStyles';
+import { getCommonStyles } from '../styles/commonStyles';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { NavigationProp } from '@react-navigation/native';
 import { useThemeStore } from '../stores/themeStore';
 import dayjs from 'dayjs';
 import type { RootStackParamList } from '../types/common';
+import { useColorScheme } from 'react-native';
 
 type NavigationPropType = StackNavigationProp<RootStackParamList, 'Graph'>;
 
@@ -19,6 +20,8 @@ const GraphScreen: React.FC<any> = (state) => {
   const today = new Date();
   const initialMonth = dayjs(today).format('YYYY-MM');
   const [currentMonth, setCurrentMonth] = useState<string>(initialMonth);
+  const colorScheme = useColorScheme();
+  const styles = getCommonStyles(colorScheme);
 
   useLayoutEffect(() => {
     const title = dayjs(currentMonth + '-01').format('YYYY年 M月');

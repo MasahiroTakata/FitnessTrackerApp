@@ -2,7 +2,7 @@ import React, { useState, useLayoutEffect, useEffect, useRef } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import CommonStyles from '../styles/commonStyles';
+import { getCommonStyles } from '../styles/commonStyles';
 import styles from '../styles/EditExerciseStyles';
 import RNPickerSelect from 'react-native-picker-select';
 import { Exercise } from '@/types/exercise';
@@ -13,6 +13,7 @@ import { useThemeStore } from '../stores/themeStore';
 import dayjs from 'dayjs';
 import { useLocalSearchParams } from 'expo-router';
 import type { RootStackParamList } from '../types/common';
+import { useColorScheme } from 'react-native';
 
 const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型を<any>として宣言している
   const [exerciseName, setExerciseName] = useState('');
@@ -49,6 +50,9 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
     setSelectedDate(filteredExercises['exercisedDate']);
   };
   const { themeColor } = useThemeStore();
+  const colorScheme = useColorScheme();
+  const CommonStyles = getCommonStyles(colorScheme);
+
   // 追加: HomeScreenと同様のナビヘッダを設定（中央に「入力」ラベル）
   useLayoutEffect(() => {
     navigation.setOptions({
