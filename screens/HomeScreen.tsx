@@ -35,7 +35,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   const [markedDateDatas, setMarkedDateDatas] = useState<
   Record<string, { selected: boolean; marked: boolean; dotColor: string }>
   >({});
-  // const navigation = useNavigation(); // 残しておく
   const navigation = useNavigation<NavigationPropType>();
   const isFirstRender = useRef(true);
   const isFirstRenderChangedMonth = useRef(true);
@@ -56,7 +55,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
   const [exercisesByDay, setExercisesByDay] = useState<typeOfGroupedDay> ({});
   // FlatListにアクセスするためのref（参照）を作成
   const flatListRef = useRef<FlatList>(null);
-  // const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const params = useLocalSearchParams();
   const { themeColor, setThemeColor } = useThemeStore();
   const colorScheme = useColorScheme();
