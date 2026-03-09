@@ -1,5 +1,5 @@
 import React, { useState, useLayoutEffect, useRef } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getCommonStyles } from '../styles/commonStyles';
@@ -77,6 +77,7 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
 
     // exerciseNameは任意なので空でも保存可能
     if (true) {
+      Keyboard.dismiss(); // キーボードを閉じる
       const savedExercises = await AsyncStorage.getItem('exercises');
       let parsedExercises: any[] = [];
 
