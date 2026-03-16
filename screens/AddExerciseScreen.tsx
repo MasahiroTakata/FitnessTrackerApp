@@ -1,6 +1,6 @@
-import React, { useState, useLayoutEffect, useRef } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useLayoutEffect, useRef, useCallback } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Keyboard } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getCommonStyles } from '../styles/commonStyles';
 import styles from '../styles/AddExerciseStyles';
@@ -22,20 +22,28 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
   const [validationMessage, setValidationMessage] = useState('');
   // 保存成功モーダル
   const [isSuccessModalVisible, setSuccessModalVisible] = useState(false);
-  const today = new Date();
-  // 初期日付をシステム日付にする
-  // const formatted = today
-  //   .toLocaleDateString("ja-JP", {
-  //     year: "numeric",
-  //     month: "2-digit", // デフォルトは１桁（1月だと1と表示される）、2-digitとすることで２桁としてくれる（１月なら01月）
-  //     day: "2-digit",
-  //   })
-  //   .split("/") // スラッシュ区切りで配列で格納する
-  //   .join("-"); // 配列に格納された値をハイフンで結合して文字列にする
   const formatted = dayjs().format('YYYY-MM-DD');
   // 日付入力用
   const [selectedDate, setSelectedDate] = useState(formatted); // 今日の日付をデフォルトに設定
   const [isCalendarVisible, setCalendarVisible] = useState(false);
+
+  // 画面がフォーカスされるたびに HomeScreenで選択された日付があれば反映
+  useFocusEffect(
+    useCallback(() => {
+      const loadSelectedDate = async () => {
+        try {
+          const savedDate = await AsyncStorage.getItem('selectedDateForExercise');
+          if (savedDate) {
+            setSelectedDate(savedDate);
+          }
+        } catch (e) {
+          console.error('selectedDateForExercise 取得エラー:', e);
+        }
+      };
+      loadSelectedDate();
+    }, [])
+  );
+
   type NavigationProp = StackNavigationProp<RootStackParamList, 'AddExercise'>;
   const navigation = useNavigation<NavigationProp>();
   const { themeColor } = useThemeStore();
@@ -77,6 +85,7 @@ const AddExerciseScreen: React.FC<any> = ({ route }) => {
 
     // exerciseNameは任意なので空でも保存可能
     if (true) {
+      Keyboard.dismiss(); // キーボードを閉じる
       const savedExercises = await AsyncStorage.getItem('exercises');
       let parsedExercises: any[] = [];
 

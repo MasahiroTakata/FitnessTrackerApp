@@ -1,5 +1,5 @@
 import React, { useState, useLayoutEffect, useEffect, useRef } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Alert, Keyboard } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getCommonStyles } from '../styles/commonStyles';
@@ -90,6 +90,7 @@ const EditExerciseScreen: React.FC<any> = ({ route }) => { // 引数routeの型�
     }
 
     if (true) {
+      Keyboard.dismiss(); // キーボードを閉じる
       const savedExercises = await AsyncStorage.getItem('exercises');
       const parsedExercises : Exercise[] = savedExercises ? JSON.parse(savedExercises) : []; // JSON形式の文字列をオブジェクトに変換
       const updatedExercises = parsedExercises.map(item =>
