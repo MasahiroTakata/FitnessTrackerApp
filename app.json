@@ -2,7 +2,7 @@
   "expo": {
     "name": "健康家計簿",
     "slug": "FitnessTrackerApp",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/fitness-tracker-icon.png",
     "scheme": "myapp",
@@ -17,7 +17,7 @@
       "deploymentTarget": "15.1",
       "requireFullScreen": true,
       "icon": "./assets/images/fitness-tracker-icon.png",
-      "buildNumber": "1.0.0",
+      "buildNumber": "1.1.0",
       "bundleIdentifier": "com.masahirotakata.FitnessTrackerApp",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
