@@ -173,7 +173,7 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
       headerTintColor: '#fff',
       headerLeft: () => null,
       headerRight: () => (
-        <TouchableOpacity onPress={() => console.log('Search pressed')} style={{ marginRight: 17 }}>
+        <TouchableOpacity onPress={() => navigation.navigate('Search' as any)} style={{ marginRight: 17 }}>
           <Ionicons name="search" size={24} color="#fff" />
         </TouchableOpacity>
       ),

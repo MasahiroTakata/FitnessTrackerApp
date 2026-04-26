@@ -12,4 +12,6 @@ export type RootStackParamList = {
   Graph: {};
   AddExercise: { state: string };
   Setting: {};
+  Search: {};
+  EditExercise: { state: string };
 };

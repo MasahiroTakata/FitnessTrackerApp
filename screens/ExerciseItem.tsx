@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Dimensions, TouchableOpacity } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
-import { CategoryRecords } from '@/constants/CategoryRecords'
+import { CategoryRecords } from '@/constants/CategoryRecords';
 import styles from '../styles/ExerciseItemStyles';
 
 interface ExerciseItemProps {
