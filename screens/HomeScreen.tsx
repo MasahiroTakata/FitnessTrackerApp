@@ -14,6 +14,7 @@ import { useLayoutEffect } from 'react';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useColorScheme } from 'react-native';
 import { getCommonStyles } from '../styles/commonStyles';
+import { Ionicons } from '@expo/vector-icons';
 
 // ロケールの初期化（モジュール読み込み時に一度だけ実行）
 configureJaLocale();
@@ -139,9 +140,29 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
     navigation.setOptions({
       headerShown: true, // 親で非表示にしている場合は true にする
       headerTitle: () => (
-        <Text style={{ fontSize: 16, fontWeight: '700', color: '#fff' }}>
-          {title}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+          <TouchableOpacity
+            onPress={() => {
+              const prev = dayjs(currentMonth + '-01').subtract(1, 'month').format('YYYY-MM');
+              setCurrentMonth(prev);
+            }}
+            style={{ marginRight: 17 }}
+          >
+            <Text style={{ color: '#fff', fontSize: 25 }}>{'‹'}</Text>
+          </TouchableOpacity>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#fff' }}>
+            {title}
+          </Text>
+          <TouchableOpacity
+            onPress={() => {
+              const next = dayjs(currentMonth + '-01').add(1, 'month').format('YYYY-MM');
+              setCurrentMonth(next);
+            }}
+            style={{ marginLeft: 17 }}
+          >
+            <Text style={{ color: '#fff', fontSize: 25 }}>{'›'}</Text>
+          </TouchableOpacity>
+        </View>
       ),
       headerTitleAlign: 'center',
       headerStyle: {
@@ -150,26 +171,10 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
         shadowOpacity: 0,
       },
       headerTintColor: '#fff',
-      headerLeft: () => (
-        <TouchableOpacity
-          onPress={() => {
-            const prev = dayjs(currentMonth + '-01').subtract(1, 'month').format('YYYY-MM');
-            setCurrentMonth(prev);
-          }}
-          style={{ paddingHorizontal: 50 }}
-        >
-          <Text style={{ color: '#fff', fontSize: 25 }}>{'‹'}</Text>
-        </TouchableOpacity>
-      ),
+      headerLeft: () => null,
       headerRight: () => (
-        <TouchableOpacity
-          onPress={() => {
-            const next = dayjs(currentMonth + '-01').add(1, 'month').format('YYYY-MM');
-            setCurrentMonth(next);
-          }}
-          style={{ paddingHorizontal: 50 }}
-        >
-          <Text style={{ color: '#fff', fontSize: 25 }}>{'›'}</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Search' as any)} style={{ marginRight: 17 }}>
+          <Ionicons name="search" size={24} color="#fff" />
         </TouchableOpacity>
       ),
     });
