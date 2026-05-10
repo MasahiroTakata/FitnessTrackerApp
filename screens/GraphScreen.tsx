@@ -27,7 +27,31 @@ const GraphScreen: React.FC<any> = (state) => {
     const title = dayjs(currentMonth + '-01').format('YYYY年 M月');
     navigation.setOptions({
       headerShown: true,
-      headerTitle: () => <Text style={{ fontSize: 16, fontWeight: '700', color: '#fff' }}>{title}</Text>,
+      headerTitle: () => (
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+          <TouchableOpacity
+            onPress={() => {
+              const prev = dayjs(currentMonth + '-01').subtract(1, 'month').format('YYYY-MM');
+              setCurrentMonth(prev);
+            }}
+            style={{ marginRight: 17 }}
+          >
+            <Text style={{ color: '#fff', fontSize: 25 }}>{'‹'}</Text>
+          </TouchableOpacity>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: '#fff' }}>
+            {title}
+          </Text>
+          <TouchableOpacity
+            onPress={() => {
+              const next = dayjs(currentMonth + '-01').add(1, 'month').format('YYYY-MM');
+              setCurrentMonth(next);
+            }}
+            style={{ marginLeft: 17 }}
+          >
+            <Text style={{ color: '#fff', fontSize: 25 }}>{'›'}</Text>
+          </TouchableOpacity>
+        </View>
+      ),
       headerTitleAlign: 'center',
       headerStyle: {
         backgroundColor: themeColor,
@@ -35,28 +59,8 @@ const GraphScreen: React.FC<any> = (state) => {
         shadowOpacity: 0,
       },
       headerTintColor: '#fff',
-      headerLeft: () => (
-        <TouchableOpacity
-          onPress={() => {
-            const prev = dayjs(currentMonth + '-01').subtract(1, 'month').format('YYYY-MM');
-            setCurrentMonth(prev);
-          }}
-          style={{ paddingHorizontal: 50 }}
-        >
-          <Text style={{ color: '#fff', fontSize: 25 }}>{'‹'}</Text>
-        </TouchableOpacity>
-      ),
-      headerRight: () => (
-        <TouchableOpacity
-          onPress={() => {
-            const next = dayjs(currentMonth + '-01').add(1, 'month').format('YYYY-MM');
-            setCurrentMonth(next);
-          }}
-          style={{ paddingHorizontal: 50 }}
-        >
-          <Text style={{ color: '#fff', fontSize: 25 }}>{'›'}</Text>
-        </TouchableOpacity>
-      ),
+      headerLeft: () => null,
+      headerRight: () => null,
     });
   }, [navigation, themeColor, currentMonth]);
 

@@ -31,6 +31,7 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
           backgroundColor: '#fff', borderRadius: 8, fontSize: 14,
         }}
         placeholder="運動名またはカテゴリー名で検索..."
+        placeholderTextColor="#999"
         value={searchQuery}
         onChangeText={(text) => {
           setSearchQuery(text);
