@@ -31,9 +31,19 @@
           <string>com.masahirotakata.FitnessTrackerApp</string>
         </array>
       </dict>
+      <dict>
+        <key>CFBundleURLSchemes</key>
+        <array>
+          <string>exp+fitnesstrackerapp</string>
+        </array>
+      </dict>
     </array>
     <key>CFBundleVersion</key>
     <string>1.1.1</string>
+    <key>GADApplicationIdentifier</key>
+    <string>ca-app-pub-2539444380195825~6822931393</string>
+    <key>GADDelayAppMeasurementInit</key>
+    <false/>
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>
     <key>LSMinimumSystemVersion</key>

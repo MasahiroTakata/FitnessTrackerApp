@@ -21,13 +21,15 @@
       "bundleIdentifier": "com.masahirotakata.FitnessTrackerApp",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "newArchitecture": false
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.masahirotakata.FitnessTrackerApp"
     },
     "web": {
       "bundler": "metro",
@@ -44,7 +46,14 @@
           }
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-2539444380195825~6822931393",
+          "iosAppId": "ca-app-pub-2539444380195825~6822931393"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
