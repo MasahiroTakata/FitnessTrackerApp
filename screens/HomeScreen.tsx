@@ -15,7 +15,6 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { useColorScheme } from 'react-native';
 import { getCommonStyles } from '../styles/commonStyles';
 import { Ionicons } from '@expo/vector-icons';
-import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
 
 // ロケールの初期化（モジュール読み込み時に一度だけ実行）
 configureJaLocale();
@@ -23,8 +22,6 @@ configureJaLocale();
 type NavigationPropType = StackNavigationProp<RootStackParamList, 'index'>;
 
 const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネントの引数（props）として、自動的に提供される
-  // ★本番用IDをここに貼る
-  const adUnitId = 'ca-app-pub-2539444380195825/5094121566';
   const weekDays: string[] = LocaleConfig.locales[LocaleConfig.defaultLocale]?.dayNamesShort;
   const today = new Date();
   const formatted = today
@@ -374,16 +371,6 @@ const HomeScreen: React.FC<any> = ({ route }) => { // screenコンポーネン�
               })}
             </View>
           );
-        }}
-      />
-
-      {/* 広告を配置 */}
-      <BannerAd
-        // __DEV__（開発環境）ならテスト用ID、本番ならあなたの本番IDを使うように切り替える
-        unitId={__DEV__ ? TestIds.BANNER : adUnitId}
-        size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-        requestOptions={{
-          requestNonPersonalizedAdsOnly: true,
         }}
       />
     </View>
