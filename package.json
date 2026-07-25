@@ -9,8 +9,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
-    "lint": "expo lint",
-    "postinstall": "node -e \"const fs=require('fs'); const p='node_modules/react-native-google-mobile-ads/src/specs/modules/NativeAppModule.ts'; if (fs.existsSync(p)) { fs.writeFileSync(p, 'import { TurboModuleRegistry } from \\'react-native\\'; import type { TurboModule } from \\'react-native\\'; export interface Spec extends TurboModule {} export default TurboModuleRegistry.getEnforcing<Spec>(\\'RNGoogleMobileAdsModule\\');'); console.log('Successfully patched NativeAppModule.ts for EAS Build!'); }\""
+    "lint": "expo lint"
   },
   "jest": {
     "preset": "jest-expo"
