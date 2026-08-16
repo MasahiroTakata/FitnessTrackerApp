@@ -46,14 +46,7 @@
           }
         }
       ],
-      "expo-font",
-      [
-        "react-native-google-mobile-ads",
-        {
-          "androidAppId": "ca-app-pub-2539444380195825~6822931393",
-          "iosAppId": "ca-app-pub-2539444380195825~6822931393"
-        }
-      ]
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
@@ -64,5 +57,9 @@
         "projectId": "40c22857-9d45-43be-9fa5-25ac10b65d92"
       }
     }
+  },
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-2539444380195825~6822931393",
+    "ios_app_id": "ca-app-pub-2539444380195825~6822931393"
   }
 }
