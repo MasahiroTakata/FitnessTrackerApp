@@ -4,8 +4,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import Foundation from 'react-native-vector-icons/Foundation';
 import { useThemeStore } from '../../stores/themeStore'; // zustandのストアをインポート
+import { View } from 'react-native';
+import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
 
 export default function TabLayout() {
+  // ★本番用IDをここに貼る
+  const adUnitId = 'ca-app-pub-2539444380195825/5094121566';
   const colorScheme = useColorScheme();
   const backgroundColor = colorScheme === 'dark' ? '#fff' : '#fff';
   const { themeColor, setThemeColor } = useThemeStore(); // zustandからテーマカラーを取得（即時反映するために必要）
@@ -26,16 +30,17 @@ export default function TabLayout() {
   }, []);
 
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: themeColor,
-        tabBarActiveBackgroundColor: backgroundColor,
-        tabBarInactiveBackgroundColor: backgroundColor,
-        tabBarStyle: {
-          backgroundColor,
-          paddingBottom: 0, // 画面下の余白をなくしている
-        },
+    <View style={{ flex: 1 }}>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: themeColor,
+          tabBarActiveBackgroundColor: backgroundColor,
+          tabBarInactiveBackgroundColor: backgroundColor,
+          tabBarStyle: {
+            backgroundColor,
+            paddingBottom: 0, // 画面下の余白をなくしている
+          },
       }}>
         <Tabs.Screen
           name="index"
@@ -85,6 +90,17 @@ export default function TabLayout() {
             ),
           }}
         />
-    </Tabs>
+      </Tabs>
+      <View>
+        {/* 広告を配置 */}
+        <BannerAd
+          unitId={__DEV__ ? TestIds.BANNER : adUnitId}
+          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+          requestOptions={{
+            requestNonPersonalizedAdsOnly: true,
+          }}
+        />
+      </View>
+    </View>
   );
 }

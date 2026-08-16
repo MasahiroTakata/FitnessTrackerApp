@@ -2,7 +2,7 @@
   "expo": {
     "name": "健康家計簿",
     "slug": "FitnessTrackerApp",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "orientation": "portrait",
     "icon": "./assets/images/fitness-tracker-icon.png",
     "scheme": "myapp",
@@ -17,17 +17,19 @@
       "deploymentTarget": "15.1",
       "requireFullScreen": true,
       "icon": "./assets/images/fitness-tracker-icon.png",
-      "buildNumber": "1.1.1",
+      "buildNumber": "1.1.2",
       "bundleIdentifier": "com.masahirotakata.FitnessTrackerApp",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "newArchitecture": false
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.masahirotakata.FitnessTrackerApp"
     },
     "web": {
       "bundler": "metro",
@@ -55,5 +57,9 @@
         "projectId": "40c22857-9d45-43be-9fa5-25ac10b65d92"
       }
     }
+  },
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-2539444380195825~6822931393",
+    "ios_app_id": "ca-app-pub-2539444380195825~6822931393"
   }
 }
